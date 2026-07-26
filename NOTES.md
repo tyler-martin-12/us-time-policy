@@ -140,14 +140,27 @@ rather the headline maps match the real bills instead.
 ## 5. Geography and population
 
 - **Boundaries:** Census TIGER/Line county shapefiles, 2020 vintage.
-- **Point per county:** Census **2020 Center of Population** (`CenPop2020_Mean_CO.txt`),
-  *not* the geometric centroid. Geometric centroids misplace large western
-  counties badly — a centroid can sit in empty desert tens of kilometres of
-  longitude away from where anyone actually lives, which directly biases a
-  longitude-driven metric.
-- **Weights:** Census county population estimates. Every national or state
-  aggregate is population-weighted:
-  `weighted = Σ(pop_i × metric_i) / Σ(pop_i)`.
+  `tl_2020_us_county.zip`, 76.9 MiB, upstream `Last-Modified` 2021-02-02.
+- **Point per county:** Census **2020 Center of Population**
+  (`CenPop2020_Mean_CO.txt`, 171 KB, upstream 2021-11-16), *not* the geometric
+  centroid. Geometric centroids misplace large western counties badly — a
+  centroid can sit in empty desert tens of kilometres of longitude away from
+  where anyone actually lives, which directly biases a longitude-driven metric.
+  File has a UTF-8 BOM (read as `utf-8-sig`) and zero-padded signed coordinates
+  (`+32.500194`, `-086.487813`).
+- **Weights:** Census **vintage 2025** county population estimates
+  (`co-est2025-alldata.csv`, 2.0 MiB, upstream 2026-03-26). Filter `SUMLEV == 050`
+  for counties and use `POPESTIMATE2025`. Every national or state aggregate is
+  population-weighted: `weighted = Σ(pop_i × metric_i) / Σ(pop_i)`.
+
+  **Mixed vintages, deliberately.** The point locations are 2020 (the most recent
+  centers of population published) while the weights are 2025 estimates. The
+  alternative is the `POPULATION` column inside `CenPop2020_Mean_CO.txt`, which is
+  the 2020 census count and vintage-consistent with the coordinates. Current
+  estimates were chosen because the weighting question is "how many people live
+  with this misalignment now", and a county's centre of population moves far more
+  slowly than its population does. Both columns are carried through stage 1 so
+  the choice can be swapped and the sensitivity checked.
 - **Time zone per county:** `timezonefinder` queried at the center of population,
   giving an IANA zone name. Deliberately no hand-maintained exception list;
   Arizona, the Navajo Nation and zone-straddling counties all resolve from
@@ -336,9 +349,20 @@ data/
 ```
 
 - `uv` for dependency management; `pyproject.toml` with pinned versions.
-- **Caching:** `data/raw/` holds a `manifest.json` of URL, SHA256, byte size and
-  fetch timestamp per file. `00_fetch.py` re-downloads only on checksum mismatch
-  or explicit `--force`.
+- **Caching:** `data/raw/` holds a `manifest.json` of URL, SHA256, byte size,
+  fetch timestamp and upstream `Last-Modified` per file. `00_fetch.py`
+  re-downloads only on checksum mismatch or explicit `--force`, so a normal run
+  makes zero network requests.
+  - The checksum guards **local** integrity (corruption, truncated downloads). It
+    is not a pin on upstream content: Census reissues these files, and silently
+    trusting a stale local copy forever would be worse than noticing.
+    `--check-remote` does a HEAD and reports size / `Last-Modified` drift without
+    downloading. Note the centers-of-population URL does not always return
+    `Content-Length`, so drift detection there falls back to `Last-Modified`
+    alone; the script says `?` for the size rather than pretending to know.
+  - Downloads stream to a `.part` file and are renamed only after the byte count
+    matches `Content-Length`. An interrupted run must never leave a short file
+    that a later run would hash and trust.
 - Intermediates are Parquet, not CSV, so dtypes and the UTC-instant distinction
   survive a round trip.
 - Every output carries a metadata sidecar recording the parameter values in

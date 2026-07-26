@@ -1,0 +1,35 @@
+[project]
+name = "us-time-policy"
+version = "0.1.0"
+description = "County-level analysis of US time policy: solar-time misalignment vs the DST debate"
+readme = "NOTES.md"
+requires-python = ">=3.12,<3.13"
+
+dependencies = [
+    # Tabular / IO. pyarrow is not optional: intermediates are Parquet so that
+    # dtypes and tz-aware UTC timestamps survive a round trip (see NOTES.md §11).
+    "pandas>=2.2",
+    "pyarrow>=16.0",
+    "numpy>=1.26",
+    # Geometry. geopandas reads the TIGER shapefile straight out of its zip.
+    "geopandas>=1.0",
+    "shapely>=2.0",
+    # Solar position: NREL SPA, vectorised.
+    "pvlib>=0.11",
+    # IANA zone from lat/lon. Resolves Arizona, the Navajo Nation and
+    # zone-straddling counties from geometry, so no hand-kept exception list.
+    "timezonefinder>=6.5",
+    # Explicit tzdata so zoneinfo does not depend on the host having a system
+    # tz database, and so the DST rules used are versioned with the project.
+    "tzdata>=2024.1",
+    "matplotlib>=3.8",
+    "requests>=2.32",
+]
+
+# Stage 2 only (see NOTES.md §9). Kept out of the default install so the
+# stage 1 pipeline does not carry a solver dependency it never imports.
+[project.optional-dependencies]
+optimize = ["ortools>=9.10"]
+
+[tool.uv]
+package = false
