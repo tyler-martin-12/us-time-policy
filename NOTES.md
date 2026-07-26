@@ -418,7 +418,71 @@ data/
 
 ---
 
-## 13. Open questions for Tyler
+## 13. First results (stages 1–4 complete)
+
+Output, not specification. Everything below is regenerable from
+`data/out/metrics.csv`, `zone_spread.csv` and `rollups.csv`.
+
+### The headline claim holds, with one exception
+
+Intra-zone spread of annual mean signed solar offset, **permanent standard time**
+(chosen so DST is not itself contributing to the spread):
+
+| Zone | Counties | Min | Max | **Range** | Pop-weighted IQR |
+| --- | --- | --- | --- | --- | --- |
+| Eastern | 1,153 | −57.1 | +30.1 | **87.3 min** | 30.4 |
+| Central | 1,492 | −59.3 | +20.3 | **79.5 min** | 32.5 |
+| Mountain | 304 | −48.2 | +18.2 | **66.5 min** | 27.4 |
+| Pacific | 159 | −17.3 | +21.5 | 38.8 min | 16.8 |
+
+Eastern, Central and Mountain each span more than the 60 minutes Congress is
+arguing about. **Pacific does not** (38.8 min), and the post should say so rather
+than implying the claim is universal — it is the narrowest zone in longitude.
+
+Even the population-weighted interquartile range is ~30 min in the three big
+zones: the *middle half* of the population inside one zone spans half the
+disputed hour.
+
+### Share of population living more than 60 min from clock noon
+
+| Regime | Share | Counties |
+| --- | --- | --- |
+| Permanent standard time | **0.0%** | 13 (all Alaska) |
+| Current law | **34.8%** | 1,413 |
+| Permanent DST | **68.2%** | 2,480 |
+| Per-county ideal | 0.0% | 0 |
+
+### Population-weighted national metrics
+
+| Regime | Annual offset | January offset | Days sunrise after 07:30 | Days sunset before 17:00 |
+| --- | --- | --- | --- | --- |
+| Permanent ST | −11.9 | −21.3 | 22.1 | 44.3 |
+| Current law | −50.0 | −21.3 | 38.5 | 42.3 |
+| Permanent DST | −71.9 | −81.3 | **136.4** | 0.2 |
+| Per-county ideal | −1.4 | −10.8 | 11.0 | 62.3 |
+
+The trade-off is real and should be presented as one: the per-county ideal beats
+every uniform policy on dark mornings (11 days vs 22–136) while being the *worst*
+on early sunsets (62.3 days). Permanent DST essentially abolishes early sunsets
+and pays for it with 136 days a year of post-07:30 sunrises.
+
+### Sanity checks that passed exactly
+
+- `perm_dst − perm_st` = **−60.0000 min** for all 3,143 counties, confirming the
+  sign convention end to end.
+- Non-DST counties (19: Arizona's 14 and Hawaii's 5) are **identical** under CTA
+  and permanent standard time, deviation 0.0000.
+- `cta − perm_st` = **−39.12 min** uniformly, which is exactly 238 DST days ÷ 365
+  × 60. An independent arithmetic check on the tzdb offsets.
+- Solar layer nulls are exactly the two Arctic county cases: North Slope (70.5°N,
+  133 days) and Northwest Arctic (66.9°N, 37 days).
+
+### Worst-aligned counties, permanent standard time
+
+All Alaska, which is why it is inset: Aleutians West −132.6 min, Nome −121.1,
+Kusilvak −117.4. Nome's latest sunrise is **12:02** — after noon.
+
+## 14. Open questions for Tyler
 
 1. **`exempt_current_non_observers`** for permanent DST — default off (all
    counties move) or on (matches real bills)? §4.
