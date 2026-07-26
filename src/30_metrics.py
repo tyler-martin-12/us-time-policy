@@ -40,6 +40,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 INTERIM = ROOT / "data" / "interim"
 OUT = ROOT / "data" / "out"
+OPTIMIZED_OFFSETS = INTERIM / "optimized_offsets.csv"
 
 MODEL_YEAR = 2026
 WINTER_MONTH = 1  # January (NOTES.md §3)
@@ -143,6 +144,11 @@ def build_regime(
         df["offset_h"] = df["std_offset_h"] + bump
     elif regime == "ideal_unconstrained":
         df["offset_h"] = np.round(df["cenpop_lon"] / 15.0)
+    elif regime == "optimized":
+        sel = pd.read_csv(OPTIMIZED_OFFSETS, dtype={"GEOID": str})
+        df = df.merge(sel, on="GEOID", how="left")
+        if df["offset_h"].isna().any():
+            raise ValueError("optimized_offsets.csv does not cover every county")
     else:
         raise ValueError(regime)
 
@@ -234,6 +240,11 @@ def main() -> int:
     assert_offset_constant_over_solar_day(solar, counties)
 
     regimes = ["cta", "perm_st", "perm_dst", "ideal_unconstrained"]
+    # Stage 5's output, included only once it exists so stages 3 and 5 stay
+    # independently runnable in either order.
+    if OPTIMIZED_OFFSETS.exists():
+        regimes.append("optimized")
+        print(f"including optimized regime from {OPTIMIZED_OFFSETS.name}")
     frames = []
     for regime in regimes:
         print(f"computing {regime}…")

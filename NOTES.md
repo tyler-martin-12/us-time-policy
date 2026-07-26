@@ -477,6 +477,57 @@ and pays for it with 136 days a year of post-07:30 sunrises.
 - Solar layer nulls are exactly the two Arctic county cases: North Slope (70.5°N,
   133 days) and Northwest Arctic (66.9°N, 37 days).
 
+### Stage 5: the optimisation, and a surprise
+
+λ sweep, 0 to 20M person-minutes per mismatched county boundary:
+
+| λ (M) | PW mean abs offset | Max | Distinct offsets | Mismatched boundaries | Solver gap |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 14.54 | 30 | 7 | 252 / 8,933 (2.8%) | 0.00% (optimal) |
+| 0.1 | 14.54 | 41 | 7 | 218 (2.4%) | 0.00% |
+| 1.0 | **14.56** | 73 | 7 | **201 (2.3%)** | 2.33% |
+| 5.0 | 14.57 | 73 | 6 | 204 (2.3%) | 16.3% |
+| 20.0 | 15.56 | 73 | 6 | 158 (1.8%) | 37.1% |
+
+**The trade-off curve is almost flat, which was not expected.** Rounding
+longitude to the nearest 15° already produces large contiguous bands, so
+contiguity is nearly free: going from the unconstrained optimum to the
+contiguity-penalised one costs **0.02 minutes** of population-weighted
+alignment.
+
+Boundary count is the wrong lens for "is this a usable map", because the
+unconstrained solution already scores well on it. **Connected regions** is the
+better measure:
+
+| Assignment | Contiguous regions | Counties in enclaves |
+| --- | --- | --- |
+| Today's zones | 9 | 3 |
+| Unconstrained ideal | 15 | 10 |
+| Optimised, λ = 1M | **10** | **3** |
+
+So the optimiser buys back essentially all of today's geographic tidiness for
+0.02 min of alignment. That is the actual finding of stage 5.
+
+**Honesty about the solver:** only λ = 0 and λ = 0.1 are proved optimal. From
+λ = 1 upward CP-SAT returns feasible solutions with gaps of 2% to 37% at a
+120s limit, so those rows are upper bounds. The selected λ = 1M solution has a
+2.3% gap. Conclusions drawn from the flatness of the curve are safe; any claim
+that a specific high-λ map is *the* optimum is not.
+
+### Illustrative counties, all three inside today's Eastern zone
+
+| County | Current law | Permanent ST | Permanent DST | Optimised |
+| --- | --- | --- | --- | --- |
+| Ontonagon, MI | −96 | −57 | −117 | **+3** |
+| Marion, IN (Indianapolis) | −84 | −45 | −105 | **+15** |
+| Washington, ME | −9 | **+30** | −30 | **+30** |
+
+One zone, and under permanent standard time its ends differ by 87 minutes. The
+optimiser fixes the western end and leaves Maine untouched, which is the clearest
+single statement of the argument. 910 counties move zone, 16.8% of the
+population; the largest are Detroit, Columbus, Atlanta, Indianapolis (all
+Eastern → Central) and San Antonio and Austin (Central → Mountain).
+
 ### Worst-aligned counties, permanent standard time
 
 All Alaska, which is why it is inset: Aleutians West −132.6 min, Nome −121.1,

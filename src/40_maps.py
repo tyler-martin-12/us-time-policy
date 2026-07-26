@@ -49,11 +49,22 @@ REGIME_TITLES = {
     "cta": "1. Current law (switching)",
     "perm_st": "2. Permanent standard time",
     "perm_dst": "3. Permanent DST",
-    "ideal_unconstrained": "4. Per-county ideal (unconstrained)",
+    "optimized": "4. Optimised per-county offsets",
+    "ideal_unconstrained": "Per-county ideal (unconstrained)",
 }
-PANEL_ORDER = ["cta", "perm_st", "perm_dst", "ideal_unconstrained"]
+PANEL_ORDER = ["cta", "perm_st", "perm_dst", "optimized"]
 
 CMAP = "RdBu_r"  # low (sun late) -> blue, zero -> white, high (sun early) -> red
+
+# Three counties in the *same* time zone, chosen because between them they carry
+# the whole argument: Maine sits +30 min while Michigan's Upper Peninsula sits
+# -57 min, an 87-minute spread inside one zone, and the optimiser fixes the west
+# end without touching the east.
+HIGHLIGHTS = {
+    "26131": "Ontonagon, MI",
+    "18097": "Marion, IN\n(Indianapolis)",
+    "23029": "Washington, ME",
+}
 
 
 def load_geometry() -> gpd.GeoDataFrame:
@@ -67,9 +78,26 @@ def project_and_simplify(gdf: gpd.GeoDataFrame, crs: str) -> gpd.GeoDataFrame:
     return out
 
 
-def draw_panel(ax, conus, ak, hi, column: str, norm, title: str) -> None:
+def draw_panel(ax, conus, ak, hi, column: str, norm, title: str,
+               states=None, marks=None) -> None:
     kw = dict(column=column, cmap=CMAP, norm=norm, linewidth=0, edgecolor="none")
     conus.plot(ax=ax, **kw)
+    if states is not None:
+        # State outlines only, drawn over the fill. County outlines at this size
+        # would read as texture and swamp the colour.
+        states.boundary.plot(ax=ax, linewidth=0.35, edgecolor="0.35", alpha=0.55)
+    if marks is not None:
+        for _, r in marks.iterrows():
+            ax.plot(r["x"], r["y"], marker="o", markersize=5.5,
+                    markerfacecolor="none", markeredgecolor="black",
+                    markeredgewidth=1.3, zorder=5)
+            ax.annotate(
+                f"{r['label']}\n{r[column]:+.0f} min",
+                xy=(r["x"], r["y"]), xytext=(r["dx"], r["dy"]),
+                textcoords="offset points", fontsize=7, ha=r["ha"], va="center",
+                zorder=6, linespacing=1.25,
+                bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="0.6", lw=0.5, alpha=0.9),
+            )
     ax.set_axis_off()
     # Title inside the axes, not set_title: with set_axis_off the axes bbox fills
     # the panel, so an external title collides with the figure subtitle above.
@@ -134,9 +162,32 @@ def main() -> int:
     ak_ll = gdf[gdf["STATEFP"] == "02"].cx[-170:-129, 50:72]
     ak = project_and_simplify(ak_ll, AK_CRS)
 
+    states = conus.dissolve(by="STATEFP")
+
+    # Highlight markers, positioned at each county's own centroid in the CONUS
+    # projection so they land on the county being labelled.
+    marks = conus[conus["GEOID"].isin(HIGHLIGHTS)].copy()
+    marks["label"] = marks["GEOID"].map(HIGHLIGHTS)
+    cent = marks.geometry.representative_point()
+    marks["x"], marks["y"] = cent.x.to_numpy(), cent.y.to_numpy()
+    # Hand-placed leader offsets: these three sit close to the map edge and to
+    # each other, so automatic placement collides.
+    place = {
+        # Ontonagon sits high on the map, so pushing the label up collides with
+        # the panel title; push left instead. Washington ME is in the top-right
+        # corner, so it has to go left too or it runs off the panel.
+        "26131": (-52, 4, "right"),
+        "18097": (14, -54, "left"),
+        "23029": (-16, 34, "right"),
+    }
+    marks["dx"] = marks["GEOID"].map(lambda g: place[g][0])
+    marks["dy"] = marks["GEOID"].map(lambda g: place[g][1])
+    marks["ha"] = marks["GEOID"].map(lambda g: place[g][2])
+
     fig, axes = plt.subplots(2, 2, figsize=(15, 11.5))
     for ax, regime in zip(axes.ravel(), PANEL_ORDER, strict=True):
-        draw_panel(ax, conus, ak, hi, f"m_{regime}", norm, REGIME_TITLES[regime])
+        draw_panel(ax, conus, ak, hi, f"m_{regime}", norm, REGIME_TITLES[regime],
+                   states=states, marks=marks)
 
     label = ("Annual mean" if args.metric == "offset_annual_mean" else "January mean")
     fig.suptitle(
@@ -164,8 +215,9 @@ def main() -> int:
         f"every county by exactly −60 min, which independently scaled panels would hide.",
         f"{clipped_all:,} of {values_all.size:,} county-panel values fall outside the domain and are "
         f"clipped ({clipped_conus:,} of them in the contiguous states).",
-        "Panel 4 is the unconstrained per-county ideal, round(longitude / 15) — a reference point, "
-        "not the contiguity-constrained optimisation.",
+        "Panel 4 minimises population-weighted misalignment with a penalty per mismatched county "
+        "boundary (CP-SAT, lambda = 1M person-minutes per boundary). Circled counties all sit in "
+        "today's Eastern zone.",
     ]
     fig.text(0.5, 0.052, "\n".join(note_lines), ha="center", va="top",
              fontsize=8, color="0.4", linespacing=1.5)
