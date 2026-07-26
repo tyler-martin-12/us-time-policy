@@ -1,0 +1,175 @@
+{
+  "Anchorage, AK|2026-01-05": {
+    "civil dawn": "09:11",
+    "civil dusk": "17:00",
+    "solar noon": "13:05",
+    "sunrise": "10:10",
+    "sunset": "16:00"
+  },
+  "Anchorage, AK|2026-03-20": {
+    "civil dawn": "06:17",
+    "civil dusk": "19:59",
+    "solar noon": "13:07",
+    "sunrise": "07:00",
+    "sunset": "19:15"
+  },
+  "Anchorage, AK|2026-06-21": {
+    "solar noon": "13:02",
+    "sunrise": "03:20",
+    "sunset": "22:43"
+  },
+  "Anchorage, AK|2026-09-22": {
+    "civil dawn": "06:01",
+    "civil dusk": "19:42",
+    "solar noon": "12:52",
+    "sunrise": "06:44",
+    "sunset": "18:59"
+  },
+  "Anchorage, AK|2026-12-21": {
+    "civil dawn": "09:12",
+    "civil dusk": "16:44",
+    "solar noon": "12:58",
+    "sunrise": "10:14",
+    "sunset": "15:41"
+  },
+  "Honolulu, HI|2026-01-05": {
+    "civil dawn": "06:46",
+    "civil dusk": "18:28",
+    "solar noon": "12:37",
+    "sunrise": "07:10",
+    "sunset": "18:04"
+  },
+  "Honolulu, HI|2026-03-20": {
+    "civil dawn": "06:13",
+    "civil dusk": "19:05",
+    "solar noon": "12:39",
+    "sunrise": "06:35",
+    "sunset": "18:43"
+  },
+  "Honolulu, HI|2026-06-21": {
+    "civil dawn": "05:26",
+    "civil dusk": "19:41",
+    "solar noon": "12:33",
+    "sunrise": "05:50",
+    "sunset": "19:16"
+  },
+  "Honolulu, HI|2026-09-22": {
+    "civil dawn": "05:58",
+    "civil dusk": "18:50",
+    "solar noon": "12:24",
+    "sunrise": "06:20",
+    "sunset": "18:27"
+  },
+  "Honolulu, HI|2026-12-21": {
+    "civil dawn": "06:40",
+    "civil dusk": "18:19",
+    "solar noon": "12:30",
+    "sunrise": "07:05",
+    "sunset": "17:55"
+  },
+  "Indianapolis, IN|2026-01-05": {
+    "civil dawn": "07:36",
+    "civil dusk": "18:05",
+    "solar noon": "12:50",
+    "sunrise": "08:06",
+    "sunset": "17:34"
+  },
+  "Indianapolis, IN|2026-03-20": {
+    "civil dawn": "06:21",
+    "civil dusk": "19:24",
+    "solar noon": "12:52",
+    "sunrise": "06:48",
+    "sunset": "18:57"
+  },
+  "Indianapolis, IN|2026-06-21": {
+    "civil dawn": "04:44",
+    "civil dusk": "20:49",
+    "solar noon": "12:47",
+    "sunrise": "05:17",
+    "sunset": "20:16"
+  },
+  "Indianapolis, IN|2026-09-22": {
+    "civil dawn": "06:05",
+    "civil dusk": "19:08",
+    "solar noon": "12:37",
+    "sunrise": "06:32",
+    "sunset": "18:42"
+  },
+  "Indianapolis, IN|2026-12-21": {
+    "civil dawn": "07:32",
+    "civil dusk": "17:54",
+    "solar noon": "12:43",
+    "sunrise": "08:02",
+    "sunset": "17:23"
+  },
+  "Miami, FL|2026-01-05": {
+    "civil dawn": "06:43",
+    "civil dusk": "18:09",
+    "solar noon": "12:26",
+    "sunrise": "07:08",
+    "sunset": "17:44"
+  },
+  "Miami, FL|2026-03-20": {
+    "civil dawn": "06:02",
+    "civil dusk": "18:55",
+    "solar noon": "12:28",
+    "sunrise": "06:25",
+    "sunset": "18:32"
+  },
+  "Miami, FL|2026-06-21": {
+    "civil dawn": "05:04",
+    "civil dusk": "19:41",
+    "solar noon": "12:23",
+    "sunrise": "05:30",
+    "sunset": "19:15"
+  },
+  "Miami, FL|2026-09-22": {
+    "civil dawn": "05:46",
+    "civil dusk": "18:40",
+    "solar noon": "12:13",
+    "sunrise": "06:09",
+    "sunset": "18:17"
+  },
+  "Miami, FL|2026-12-21": {
+    "civil dawn": "06:38",
+    "civil dusk": "18:00",
+    "solar noon": "12:19",
+    "sunrise": "07:03",
+    "sunset": "17:35"
+  },
+  "Seattle, WA|2026-01-05": {
+    "civil dawn": "07:22",
+    "civil dusk": "17:08",
+    "solar noon": "12:15",
+    "sunrise": "07:57",
+    "sunset": "16:33"
+  },
+  "Seattle, WA|2026-03-20": {
+    "civil dawn": "05:41",
+    "civil dusk": "18:53",
+    "solar noon": "12:17",
+    "sunrise": "06:12",
+    "sunset": "18:22"
+  },
+  "Seattle, WA|2026-06-21": {
+    "civil dawn": "03:31",
+    "civil dusk": "20:52",
+    "solar noon": "12:11",
+    "sunrise": "04:12",
+    "sunset": "20:11"
+  },
+  "Seattle, WA|2026-09-22": {
+    "civil dawn": "05:26",
+    "civil dusk": "18:37",
+    "solar noon": "12:02",
+    "sunrise": "05:56",
+    "sunset": "18:07"
+  },
+  "Seattle, WA|2026-12-21": {
+    "civil dawn": "07:19",
+    "civil dusk": "16:56",
+    "solar noon": "12:08",
+    "sunrise": "07:55",
+    "sunset": "16:20"
+  }
+}

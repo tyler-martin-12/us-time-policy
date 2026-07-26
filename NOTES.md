@@ -148,19 +148,25 @@ rather the headline maps match the real bills instead.
   where anyone actually lives, which directly biases a longitude-driven metric.
   File has a UTF-8 BOM (read as `utf-8-sig`) and zero-padded signed coordinates
   (`+32.500194`, `-086.487813`).
-- **Weights:** Census **vintage 2025** county population estimates
-  (`co-est2025-alldata.csv`, 2.0 MiB, upstream 2026-03-26). Filter `SUMLEV == 050`
-  for counties and use `POPESTIMATE2025`. Every national or state aggregate is
-  population-weighted: `weighted = Σ(pop_i × metric_i) / Σ(pop_i)`.
+- **Weights:** the **2020 census count**, taken from the `POPULATION` column of
+  `CenPop2020_Mean_CO.txt`. Column `pop_weight` in `counties.parquet`. Every
+  national or state aggregate is population-weighted:
+  `weighted = Σ(pop_i × metric_i) / Σ(pop_i)`. Sums to 331,449,281, which matches
+  the published 2020 census total for the 50 states plus DC.
 
-  **Mixed vintages, deliberately.** The point locations are 2020 (the most recent
-  centers of population published) while the weights are 2025 estimates. The
-  alternative is the `POPULATION` column inside `CenPop2020_Mean_CO.txt`, which is
-  the 2020 census count and vintage-consistent with the coordinates. Current
-  estimates were chosen because the weighting question is "how many people live
-  with this misalignment now", and a county's centre of population moves far more
-  slowly than its population does. Both columns are carried through stage 1 so
-  the choice can be swapped and the sensitivity checked.
+  **This reverses an earlier choice, for a concrete reason.** Vintage 2025
+  estimates (`co-est2025-alldata.csv`) were the first pick, on the grounds that
+  "how many people live with this misalignment *now*" is the better question. They
+  turn out to be unusable as the primary weight: **Connecticut abolished its
+  counties for statistical purposes**, so vintage 2025 reports 9 planning regions
+  under new FIPS codes that do not nest into the 2020 county boundaries this
+  pipeline uses. All 8 Connecticut counties come back null on the join, and they
+  cannot be backfilled by aggregation because the old and new units do not nest.
+
+  Using the 2020 count puts boundaries, point locations and weights all on a
+  single vintage with no gaps, which for a longitude-driven metric matters more
+  than five years of population drift. `pop_2025_est` is still carried in
+  `counties.parquet` as a sensitivity column, null for those 8 counties.
 - **Time zone per county:** `timezonefinder` queried at the center of population,
   giving an IANA zone name. Deliberately no hand-maintained exception list;
   Arizona, the Navajo Nation and zone-straddling counties all resolve from
@@ -265,12 +271,38 @@ One row per **county × regime**. Primary metric first.
 | `offset_winter` | Mean signed solar offset, Jan 1–31 | n/a |
 | `days_sunrise_after_0730` | Count of days where local clock `sunrise_geom` > 07:30 | Days with no sunrise count as **satisfying** the condition (the sun never came up, which is strictly worse than a late sunrise); count of such days reported separately as `days_no_sunrise` |
 | `days_sunset_before_1700` | Count of days where local clock `sunset_geom` < 17:00 | Days with no sunset count as satisfying; `days_no_sunset` reported separately |
-| `latest_sunrise_local` | Max local clock `sunrise_geom` over the year | Null days excluded |
-| `latest_sunrise_date` | Date achieving it — expected in early January, and worth checking, because landing on the solstice means the calculation is wrong |
+| `latest_sunrise_local` | Max local clock `sunrise_geom` over the year. **Max of local time-of-day, not of the absolute instant** — taking the argmax of the UTC timestamp trivially returns Dec 31 for every county | Null days excluded |
+| `latest_sunrise_date` | Date achieving it. See the note below: under CTA this is usually a DST boundary day, not January |
 | `days_dawn_after_0730` | Civil-twilight sensitivity version of the sunrise count | as above |
 
 Thresholds `07:30` and `17:00` are parameters, not literals, and appear in the
 output metadata so a reader can see they were chosen rather than derived.
+
+### Finding: under CTA the latest sunrise is a DST boundary day
+
+§3 says the latest sunrise falls in early January. That is true of *solar*
+sunrise, and therefore true under **permanent standard time** (and under
+permanent DST, shifted an hour). It is **not** generally true under CTA, because
+DST adds an hour to the clock while the sun is already rising late in autumn.
+Measured on the built solar layer:
+
+| County | Latest clock sunrise under CTA |
+| --- | --- |
+| Marion, IN (Indianapolis) | **Oct 31, 08:12** |
+| New York, NY | **Oct 31, 07:25** |
+| King, WA (Seattle) | Jan 1, 07:56 |
+| Honolulu, HI | Jan 15, 07:11 (no DST) |
+| Anchorage, AK | Dec 26, 10:14 |
+| Miami-Dade, FL | **Mar 8, 07:37** |
+
+Oct 31 2026 is the last full day of DST and Mar 8 is the first. So for much of
+the country the latest sunrise of the year is manufactured by the DST rules
+rather than by the sun, and an 08:12 sunrise in Indianapolis at the end of
+October is a compact statement of the whole argument.
+
+This also serves as a correctness check on the CTA regime: the metric landing
+precisely on the two 2026 transition dates is evidence that offsets are coming
+from the tzdb correctly.
 
 Both a per-county table and population-weighted rollups (national, per state)
 are produced. The intra-zone spread statistics — for each existing zone, the
