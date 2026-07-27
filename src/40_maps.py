@@ -127,6 +127,8 @@ def main() -> int:
     ap.add_argument("--single", action="store_true",
                     help="also write one full-width PNG per regime; the 2x2 grid is "
                          "unreadable on a phone however many pixels it has")
+    ap.add_argument("--before-after", action="store_true",
+                    help="two-panel today-vs-fitted figure, for leading a post")
     args = ap.parse_args()
 
     metrics = pd.read_csv(OUT / "metrics.csv", dtype={"GEOID": str})
@@ -257,6 +259,50 @@ def main() -> int:
             f1.savefig(p1, dpi=args.dpi)
             plt.close(f1)
             print(f"  wrote {p1.name}")
+
+    if args.before_after:
+        # Two panels, not four. As a lead image the 2x2 grid asks a reader to
+        # decode a scale and hold four scenarios at once before they have been
+        # told what the metric is; the comparison that carries the argument is
+        # just today against a fitted map.
+        f2, axs = plt.subplots(1, 2, figsize=(17, 8.2))
+        for ax2, regime, head in (
+            (axs[0], "cta", "Today"),
+            (axs[1], "optimized", "Fitted to the sun"),
+        ):
+            draw_panel(ax2, conus, ak, hi, f"m_{regime}", norm, "",
+                       states=states, marks=marks)
+            ax2.text(0.01, 1.01, head, transform=ax2.transAxes, ha="left", va="bottom",
+                     fontsize=20, color="#1a1208", fontweight="bold")
+        axs[0].text(0.01, 0.965, "current law, with the seasonal switch",
+                    transform=axs[0].transAxes, ha="left", va="top",
+                    fontsize=11.5, color="#6b6157")
+        axs[1].text(0.01, 0.965, "one fixed offset per county, contiguity-penalised",
+                    transform=axs[1].transAxes, ha="left", va="top",
+                    fontsize=11.5, color="#6b6157")
+
+        f2.suptitle("How far every US county's clock sits from its sun",
+                    fontsize=25, x=0.032, ha="left", y=0.985, color="#1a1208")
+        f2.text(0.032, 0.905,
+                "Blue: the sun runs late, so late sunrises and late sunsets. Red: the sun runs early. "
+                "White: the clock agrees with the sun.",
+                fontsize=13, color="#6b6157", ha="left")
+
+        c2 = f2.add_axes([0.31, 0.085, 0.38, 0.019])
+        cb2 = f2.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP), cax=c2,
+                          orientation="horizontal", extend="both")
+        cb2.set_label("minutes between clock noon and true solar noon", fontsize=10, labelpad=8)
+        cb2.ax.xaxis.set_label_position("top")
+        f2.text(0.5, 0.038,
+                "Annual mean, 2026. The fitted map also drops the seasonal switch, so the difference "
+                "shown is both changes together. Alaska and Hawaii inset on the same scale.",
+                ha="center", fontsize=9, color="#6b6157")
+
+        f2.subplots_adjust(left=0.01, right=0.99, top=0.87, bottom=0.14, wspace=0.02)
+        dest2 = OUT / f"fig_c_before_after_{args.metric}.png"
+        f2.savefig(dest2, dpi=args.dpi, facecolor="white")
+        plt.close(f2)
+        print(f"wrote {dest2.name}")
 
     meta_path = OUT / "map_meta.json"
     meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}

@@ -5,15 +5,19 @@ date: "2026-07-27"
 description: "Measuring how far every US county's clock sits from its sun, and why the DST debate is arguing about the wrong variable."
 slug: "the-wrong-hour"
 tags: []
-image: "/images/blog/the-wrong-hour/fig_a_zone_spread.png"
-imageAlt: "Every US county plotted by how far its clock sits from the sun, by time zone, against a 60-minute reference bar."
+image: "/images/blog/the-wrong-hour/fig_c_before_after.png"
+imageAlt: "Two maps of the US coloured by how far each county's clock sits from its sun. Today's map is almost entirely blue; a fitted map is almost entirely white."
 ---
 
 Washington County, Maine and Ontonagon County, Michigan are in the same time zone. When the clock in both places says noon, the sun over Maine passed overhead half an hour ago, and the sun over Michigan is still nearly an hour from getting there.
 
 That gap is 87 minutes. Congress has spent years arguing about 60.
 
-I wanted to know how general that was, so I computed it for all 3,143 US counties. This is a note on how, and on the two results that surprised me.
+The two maps above are the argument in one image. On the left is where every US county's clock actually sits relative to its own sun today. On the right is the same country with one fixed offset per county, chosen to fit the sun rather than inherited from a railway timetable. Blue means the sun runs late, red means it runs early, white means the clock and the sun agree.
+
+Two things are worth noticing before any of the detail. The left map is almost entirely blue, and the right map is almost entirely white. And the right map is barely less tidy than the left, which is not what I expected and is the more interesting of the two findings below.
+
+I computed this for all 3,143 US counties. This is a note on how, and on the two results that surprised me.
 
 ## The measure
 
@@ -86,6 +90,8 @@ Two results, and the second is the honest correction to the first.
 
 **Contiguity is nearly free.** Going from the unconstrained answer to a map as tidy as today's zones costs 0.02 minutes of population-weighted alignment. The intuition that per-place time zones would mean a chaotic patchwork is wrong, because longitude bands are naturally contiguous. Measured as connected regions, the unconstrained solution has 15 with 10 counties stranded in enclaves; the penalised one has 10 and 3, against today's 9 and 3.
 
+That is what the right-hand map at the top of this post is. It is not a patchwork. It has one more contiguous region than the current system and the same number of stranded counties, and it is the near-white one.
+
 **But the average American barely gains.** Today's zone boundaries are already close to as good as whole-hour offsets allow: 16.95 minutes of population-weighted misalignment against a floor of 14.52. Redrawing every boundary in the country buys 2.4 minutes. I had written a much more exciting sentence before I checked that number.
 
 The gain is entirely in the tail. The share of the population more than 30 minutes from solar noon falls from 17.5% to 1.4%. So the case for redrawing zones is not that everyone gains. It is that about 58 million people are badly served and almost none of them need to be.
@@ -109,10 +115,20 @@ The number I keep coming back to is Indianapolis. On 31 October 2026, the last f
 - **Length:** ~1,450 words. Longer than "short" but this is the methodology
   piece; the LinkedIn post is the short version. Cut §"Then I tried to fit the
   country" if you want it under 1,000.
-- **Figures to place:** `fig_b_two_counties.png` right after the opening
-  paragraph, `fig_a_zone_spread.png` in "What it shows", and the four-panel map
-  in "Then I tried to fit the country". Copy into
-  `public/images/blog/the-wrong-hour/`.
+- **Figures, in order.** Copy all into `public/images/blog/the-wrong-hour/`.
+  1. **Hero: `fig_c_before_after_offset_annual_mean.png`**, set in frontmatter so
+     the layout renders it at the top. Today vs fitted, and the post now opens by
+     reading it. Rename to `fig_c_before_after.png` to match the frontmatter, or
+     change the frontmatter.
+  2. `fig_a_zone_spread.png` in "What it shows". This is the one that proves the
+     87-minute claim generalises; the hero shows the pattern, this shows the
+     comparison against 60 minutes.
+  3. `signed_solar_offset_four_panel_offset_annual_mean.png` in "What the two
+     proposals do". It is the only place permanent DST is shown rather than
+     tabulated, and panel 3 going solid dark blue is worth seeing.
+  4. `fig_b_two_counties.png` is optional. The opening paragraph now does its job
+     in words, so only use it if the post feels like it needs a beat before the
+     method section.
 - **Style check:** British spelling, no em dashes, no "genuine", contractions
   used sparingly as per the essay pattern in `STYLE.md`.
 - **Open question still unresolved:** permanent DST is modelled as applying to
