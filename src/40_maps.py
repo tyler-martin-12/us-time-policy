@@ -123,6 +123,10 @@ def main() -> int:
     ap.add_argument("--domain", type=float, help="colour scale half-range in minutes")
     ap.add_argument("--metric", default="offset_annual_mean",
                     choices=["offset_annual_mean", "offset_winter"])
+    ap.add_argument("--dpi", type=int, default=170)
+    ap.add_argument("--single", action="store_true",
+                    help="also write one full-width PNG per regime; the 2x2 grid is "
+                         "unreadable on a phone however many pixels it has")
     args = ap.parse_args()
 
     metrics = pd.read_csv(OUT / "metrics.csv", dtype={"GEOID": str})
@@ -225,8 +229,34 @@ def main() -> int:
     fig.subplots_adjust(left=0.01, right=0.99, top=0.935, bottom=0.125,
                         wspace=0.01, hspace=0.02)
     dest = OUT / f"signed_solar_offset_four_panel_{args.metric}.png"
-    fig.savefig(dest, dpi=170)
-    print(f"wrote {dest.relative_to(ROOT)}")
+    fig.savefig(dest, dpi=args.dpi)
+    print(f"wrote {dest.relative_to(ROOT)}  ({args.dpi} dpi)")
+    plt.close(fig)
+
+    if args.single:
+        # One regime per file, full width. On a phone the 2x2 grid gives each map
+        # under half the screen width, which no amount of dpi fixes.
+        for i, regime in enumerate(PANEL_ORDER, start=1):
+            f1, ax1 = plt.subplots(figsize=(11, 8))
+            # Empty in-axes title: the figure suptitle already names the
+            # regime, and draw_panel would print it a second time.
+            draw_panel(ax1, conus, ak, hi, f"m_{regime}", norm,
+                       "", states=states, marks=marks)
+            f1.suptitle(
+                f"Signed solar offset, {label.lower()} 2026 — {REGIME_TITLES[regime]}",
+                fontsize=13, y=0.97,
+            )
+            c1 = f1.add_axes([0.22, 0.075, 0.56, 0.022])
+            cbar = f1.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP), cax=c1,
+                               orientation="horizontal", extend="both")
+            cbar.set_label("minutes: negative = sun runs late, positive = sun runs early",
+                           fontsize=8.5, labelpad=7)
+            cbar.ax.xaxis.set_label_position("top")
+            f1.subplots_adjust(left=0.01, right=0.99, top=0.93, bottom=0.13)
+            p1 = OUT / f"panel{i}_{regime}_{args.metric}.png"
+            f1.savefig(p1, dpi=args.dpi)
+            plt.close(f1)
+            print(f"  wrote {p1.name}")
 
     meta_path = OUT / "map_meta.json"
     meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
