@@ -1,54 +1,62 @@
 # LinkedIn post
 
-**Graphic:** `fig_a_zone_spread.png` (1800x1290). Self-contained: the claim is
-readable without the caption.
+**Images:** two, as a carousel.
+1. `fig_c_before_after_offset_annual_mean.png`, today vs fitted. Blue to white
+   reads instantly and matches the new opening.
+2. `fig_a_zone_spread.png`, the zone spread against the 60-minute bar, for
+   anyone who swipes.
 
-**Length:** ~190 words. LinkedIn truncates around 210 characters, so the first
-two lines have to carry it alone.
+**Length:** ~210 words. First two lines carry it, since LinkedIn truncates around
+210 characters.
 
 ---
 
-Washington County, Maine and Ontonagon County, Michigan are in the same time zone.
+I spent a weekend trying to redraw America's time zones to fit the sun, and got two answers I did not expect.
 
-At noon, the sun over Maine passed overhead half an hour ago. Over Michigan it is still most of an hour away.
+Setup: the DST debate is about applying one hour, uniformly, to the whole country. But how far your clock already sits from your sun varies enormously. Washington County, Maine and Ontonagon County, Michigan share a time zone and sit 87 minutes apart. Eastern spans 87 minutes end to end, Central 80, Mountain 66. Three of four zones are internally wider than the hour being voted on.
 
-That gap is 87 minutes. Congress has spent years arguing about 60.
+So I set it up as an optimisation over all 3,143 counties: pick one offset each to minimise how far people live from solar noon, with a penalty for every pair of neighbouring counties that disagree.
 
-I ran the numbers for all 3,143 US counties: where the sun actually is when the clock says noon, under current law, under permanent standard time, and under permanent DST.
+Surprise one: keeping the map tidy is nearly free. Fitting the sun properly while staying as contiguous as today's zones costs 0.02 minutes of alignment. The patchwork objection to per-place time zones is wrong, because longitude bands are naturally contiguous.
 
-Three of the four continental time zones are internally more spread out than the hour the whole debate is about. Eastern spans 87 minutes, Central 80, Mountain 66. Only Pacific, the narrowest, comes in under at 39.
+Surprise two, which cuts against my own thesis: today's boundaries are already close to as good as whole-hour offsets allow. Redrawing every line in the country buys the average American 2.4 minutes. The entire gain is in the tail, where the badly-served share falls from 17.5% to 1.4%.
 
-So the framing is off. "DST or standard time" is a single hour applied uniformly to a country whose internal misalignment is already bigger than that hour. Whichever side wins, Indianapolis still gets an 8:12am sunrise at the end of October, and Maine still gets 4pm sunsets.
+None of the underlying observation is new. Chronobiologists have made this argument for years. What I had not seen was anyone actually solve for the map.
 
-The interesting variable was never which hour. It is where the lines are drawn.
-
-Method, data and code in the comments.
+Method and code below.
 
 ---
 
 ## First comment (post immediately after)
 
-Full write-up with the methodology: [BLOG LINK]
+Full write-up: [BLOG LINK]
 
-Solar positions from NREL's SPA via pvlib, validated against USNO to within a
-minute across five sites and five dates. County centres are Census centres of
-population rather than geometric centroids, which matters a lot for large
-western counties. Time zones resolved from the IANA database, so Arizona and the
-Navajo Nation fall out correctly instead of needing hand-coded exceptions.
+Prior work worth reading, because the core observation is not mine: Roenneberg
+et al. (2019) in Frontiers in Physiology on artificial time zones, and Giuntella
+& Mazzonna (2019) in the Journal of Health Economics, who use US time zone
+borders to show an extra hour of evening light costs about 19 minutes of sleep a
+night. Stefano Maggiolo mapped solar-versus-clock offset worldwide back in 2014.
+
+Method: solar positions from NREL's SPA via pvlib over 1.1 million county-days,
+validated against USNO to within 68 seconds. County points are Census centres of
+population, not geometric centroids, which matters because the metric is
+longitude-driven and a centroid can sit far from where anyone lives. Zones
+resolved from the IANA database so Arizona falls out correctly. Optimisation is
+CP-SAT over the county adjacency graph with the contiguity penalty swept rather
+than picked.
 
 ---
 
 ## Notes on the draft
 
-- **Opens on the two counties, not the thesis.** The abstract claim
-  ("misalignment varies more than the debated hour") is not interesting until
-  you have seen one concrete instance of it.
-- **The Pacific exception is in the post, not buried.** Anyone who checks will
-  find it, and finding it themselves after we hid it would cost more than
-  stating it.
-- **No call to action, no "thoughts?"** The last line is the argument, which is
-  a better prompt than asking for engagement.
-- **Indianapolis 8:12am is the detail people will quote back.** It is real: 31
-  October 2026, the last full day of DST.
-- Consider posting the graphic alone, no link in the body. LinkedIn suppresses
-  posts with outbound links, hence the link in the first comment.
+- **Leads with the optimisation, not the misalignment.** The misalignment maps
+  are the part that has been done before, including at world scale. The solved
+  map is the part that has not.
+- **Credits the prior work in the body, not just the comment.** "None of the
+  underlying observation is new" costs one line and removes the whole class of
+  "actually, this is well known" replies. It also makes the novel bit legible.
+- **Includes the finding that undercuts the thesis.** Surprise two is the most
+  credible thing in the post precisely because it is inconvenient.
+- **No call to action.** The last line before the method is the argument.
+- Cut the Indianapolis 8:12am detail from this version. It is good but the post
+  can only carry one concrete hook and the two counties do it better.
