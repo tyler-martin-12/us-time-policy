@@ -98,6 +98,10 @@ Against that, here is what the two proposals do to the share of the population l
 
 To be fair to permanent DST, it nearly abolishes the early-sunset problem, taking the population-weighted count of days with sunset before 5pm from 44 a year to essentially zero. That is a real benefit and it is why people want it. The price is 136 days a year of sunrises after 7:30am, against 22 under permanent standard time. It is a trade, not a mistake.
 
+One modelling choice to declare, because it moves that 68.2% figure. I apply permanent DST to every county, including Arizona and Hawaii, which currently do not observe it. The actual bills exempt them. I did it the uniform way because it makes a cleaner controlled comparison: every county moves by exactly the same hour, so the map shows the geography rather than the geography plus a carve-out.
+
+Exempting them would leave about 8.5 million people, 2.6% of the population, where they are and pull the national figures down a little. It would not change the argument. Both states sit around 27 minutes west of their meridians on standard time, which is middling by national standards rather than the kind of extreme that drives the tails. The pipeline has a flag for it either way.
+
 ## Solving for the map
 
 Now the part I had not seen anyone do. An integer program over the county adjacency graph: choose one integer offset per county to minimise population-weighted misalignment, plus a penalty for every pair of neighbouring counties that end up on different offsets. Solved with CP-SAT, and the penalty weight swept rather than picked, since picking it would be choosing the answer.
@@ -139,10 +143,9 @@ Code and data are on GitHub, including the notes file where I pinned down the si
   3. `signed_solar_offset_four_panel_offset_annual_mean.png` in the same section,
      after the proposals table. The only place permanent DST is shown rather than
      tabulated, and panel 3 going solid dark blue earns its place.
-- **Repo is private.** Either make it public before publishing or cut the last
-  line.
-- **Still unresolved:** permanent DST is modelled as applying to Arizona and
-  Hawaii, while the real bills exempt them. Not mentioned in the post. It is the
-  most likely thing a sharp commenter picks at, so consider a footnote.
+- **Arizona/Hawaii now addressed** in the proposals section, with the flag and
+  the 2.6% figure stated. `EXEMPT_CURRENT_NON_OBSERVERS` is still `False` in
+  `30_metrics.py`; flip it and re-run if you would rather the headline numbers
+  match the actual bills.
 - **Deliberately not claimed:** that this is novel. Two sections now credit prior
   work explicitly. That costs a little swagger and buys a lot of defensibility.
