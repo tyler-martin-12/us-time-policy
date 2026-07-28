@@ -95,8 +95,8 @@ def main() -> int:
     # Figures placed at the documented positions rather than by hand, so the page
     # cannot drift from notes/BLOG_POST_DRAFT.md if the sections move.
     body = body.replace(
-        "## How big the residual is",
-        "## How big the residual is\n\n@@FIG_SPREAD@@",
+        "## How far off is everyone",
+        "## How far off is everyone\n\n@@FIG_SPREAD@@",
         1,
     )
     body = body.replace(

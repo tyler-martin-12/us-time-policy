@@ -9,143 +9,128 @@ image: "/images/blog/redrawing-americas-time-zones/fig_c_before_after.png"
 imageAlt: "Two maps of the US coloured by how far each county's clock sits from its sun. Today's map is almost entirely blue; a fitted map is almost entirely white."
 ---
 
-I spent a weekend trying to redraw America's time zones to fit the sun, and got two answers I did not expect. One of them argues against the point I set out to make.
+I spent a weekend trying to redraw America's time zones to fit the sun. Two things surprised me, and one of them argues against the point I set out to make.
 
-The maps above are the result. On the left is where every US county's clock actually sits relative to its own sun today. On the right is the same country with one fixed offset per county, chosen by an optimiser to fit the sun rather than inherited from a railway timetable. Blue means the sun runs late, so late sunrises and late sunsets. Red means it runs early. White means the clock and the sun agree.
+The maps above are the answer. On the left is where every US county's clock sits relative to its own sun today. On the right is the same country with one fixed offset per county, chosen by an optimiser to fit the sun instead of inherited from a railway timetable. Blue means the sun runs late, red means it runs early, white means the clock and the sun agree.
 
-## Why bother
+## Start with Indianapolis
 
-The daylight saving debate is about applying one hour, uniformly, to the entire country. That framing quietly assumes everyone starts from the same place, and they do not.
+On 15 June this year, the sun over Indianapolis reaches its highest point at **1:45 in the afternoon**. Not noon. In January, with the clocks back, it peaks at 12:54.
 
-Washington County, Maine and Ontonagon County, Michigan are in the same time zone. When the clock in both says noon, the sun over Maine passed overhead half an hour ago, and the sun over Michigan is still nearly an hour from getting there. That gap is 87 minutes. Congress has spent years arguing about 60.
+Drive four hours west to Chicago and on that same January day the sun peaks at 12:00, almost exactly.
 
-## This part is not new, and it matters that it is not
+Both are Midwestern cities, less than two degrees of longitude apart. The difference is that Indianapolis is on Eastern time and Chicago is on Central.
 
-I should be straight about what is mine here, because the central observation is not.
+That gap is what I set out to measure, and I'll call it the **signed solar offset**: the distance between the clock's noon and the sun's noon. Chicago in January is zero. Indianapolis is 54 minutes.
 
-Chronobiologists have been making this argument for years. [Roenneberg and colleagues](https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2019.00944/full) put it plainly in 2019: standard time zones are gerrymandered, the western edge of most is delayed more than 30 minutes from solar time and sometimes over an hour, and that mismatch matters more than the switching question. [Stefano Maggiolo](https://blog.poormansmath.net/how-much-is-time-wrong-around-the-world/) mapped solar-versus-clock offset for the whole world in 2014 and it went round the internet. If the left-hand map above feels familiar, that is why.
+Two things follow, and they are the whole argument in miniature.
 
-What I could not find was anyone who had actually solved for the right-hand map. That is the part worth reading.
+**Daylight saving makes the gap bigger, not smaller, in places like this.** Indianapolis goes from 54 minutes out in winter to an hour and three quarters out in June. Every hour of DST pushes the sun's noon later on the clock, so permanent DST would lock in the summer figure year round.
 
-## Why misalignment is worth measuring at all
+**This is not about latitude.** Anchorage has punishing winter sunrises because it sits at 61°N, and no law can fix that. The Indianapolis gap is different: it is purely a consequence of which offset the clock is set to, which is the only part anyone actually votes on.
 
-A measurement needs a stake, and "the clock disagrees with the sun" is not self-evidently a problem. The evidence that it is comes from studies using time zone borders as a natural experiment: two towns a few miles apart, similar in most respects, on different clocks.
+A time zone is a step function laid over a smooth quantity. Longitude changes continuously as you drive west; clocks jump an hour at a time. The gap is the leftover, and no way of setting the clocks makes it zero.
 
-The best-identified result is [Giuntella and Mazzonna (2019)](https://www.sciencedirect.com/science/article/abs/pii/S0167629618309718) in the Journal of Health Economics. An extra hour of natural light in the evening, which is what living on the western edge of a zone gives you, costs about **19 minutes of sleep a night** and raises the chance of reporting insufficient sleep. That literature also reports [lower wages and a national cost in the billions](https://theconversation.com/the-hazards-of-living-on-the-right-side-of-a-time-zone-border-116630) on the late-sunset side of borders.
+## Why this is worth measuring
 
-Worth flagging honestly: the more alarming claims in this area are contested. A widely-reported link between position in a time zone and cancer risk was [re-examined by Niu and colleagues in 2023](https://arxiv.org/abs/2306.05921), who found no significant effect on overall cancer incidence and described inconsistencies in the earlier work. The sleep and labour-market findings are on firmer ground than the cancer ones, and I would not lean on the latter.
+"Your clock disagrees with your sun" is not self-evidently a problem, so it is fair to ask whether it does any harm.
 
-So: a real effect, modest per person, applied to a lot of people.
+The best evidence comes from studies that use time zone borders as a natural experiment: two towns a few miles apart, alike in most respects, on different clocks. [Giuntella and Mazzonna (2019)](https://www.sciencedirect.com/science/article/abs/pii/S0167629618309718) find that an extra hour of evening light, which is what the western edge of a zone gives you, costs about **19 minutes of sleep a night**. The same literature reports [lower wages and national costs in the billions](https://theconversation.com/the-hazards-of-living-on-the-right-side-of-a-time-zone-border-116630) on the late-sunset side of borders.
 
-## The measure
+Some louder claims in this area are contested, and it is worth being straight about that. A widely-repeated link between time zone position and cancer risk was [re-examined in 2023](https://arxiv.org/abs/2306.05921) and did not hold up for overall cancer incidence. The sleep and wage findings are on firmer ground.
 
-Everything rests on one number, which I will call the signed solar offset:
+So: a real effect, modest per person, spread over a lot of people.
 
-> **clock noon minus true solar noon**, in minutes
+None of that observation is mine, incidentally. Chronobiologists have made this case for years, [Roenneberg and colleagues](https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2019.00944/full) most directly in 2019, and [Stefano Maggiolo](https://blog.poormansmath.net/how-much-is-time-wrong-around-the-world/) mapped clock-versus-sun offset for the whole world back in 2014. If the left-hand map looks familiar, that is why. What I could not find was anyone who had solved for the right-hand one.
 
-Positive means the sun runs early, which is the eastern edge of a zone. Negative means it runs late, the western edge.
+## How far off is everyone
 
-The reason to use this rather than sunrise times is that sunrise confounds two different things. Anchorage has brutal winter sunrises because it sits at 61°N, and no legislature can do anything about that. Signed solar offset strips latitude out entirely and leaves only the part that is a policy choice: which UTC offset your clock is set to.
+I computed the offset for all 3,143 US counties, every day of 2026, and checked the result against US Naval Observatory tables. [1] [4]
 
-One consequence trips people up, so it is worth saying early. Adding an hour of daylight saving *subtracts* 60 minutes from this number. Permanent DST makes every county's offset more negative.
+Washington County, Maine and Ontonagon County, Michigan are both on Eastern time. When the clock in both says noon, the sun over Maine passed overhead half an hour ago, and the sun over Michigan is still nearly an hour away. That is 87 minutes of difference inside a single time zone.
 
-It also helps to be clear what a time zone is. Longitude varies smoothly; clocks jump in whole hours. A time zone is a step function approximating a continuous quantity, and misalignment is the residual. It is structural. No way of setting the clocks makes it zero.
+It is not just those two. Measured across each zone on standard time:
 
-## Building it
-
-Four ingredients, and one of them matters more than it sounds.
-
-**Where a county is.** Census TIGER boundaries, but the point I compute the sun at is the Census **centre of population**, not the geometric centroid. A geometric centroid for a large western county can sit tens of kilometres of longitude from where anyone actually lives, and since the whole metric is longitude-driven that would bias the answer directly.
-
-**Which zone it is in.** Resolved from the IANA time zone database at that point, so Arizona, the Navajo Nation and the counties that straddle a boundary all fall out of geometry rather than out of my assumptions. About 24 counties do straddle a boundary; each takes the zone its population centre falls in, and they are listed in the output so the caveat is visible rather than buried.
-
-**Where the sun is.** NREL's Solar Position Algorithm via pvlib, over 3,143 counties by 365 days of 2026, which is 1.1 million county-days. Everything is stored as UTC instants and converted to local clock time only at the end, once per scenario. Storing local times would mean recomputing the sun for every policy scenario, which is both wasteful and an invitation to the scenarios quietly disagreeing about astronomy.
-
-**What the clock says.** Each regime is a function from county and instant to a UTC offset, never a label. Current law reads its offsets from the tz database, so DST transition dates are never hardcoded.
-
-## The validation changed the code twice
-
-I checked the solar layer against published sunrise and sunset times for five sites spanning the failure modes, on five dates spanning the year.
-
-My first reference was a convenient public API, and it failed by up to five minutes at Anchorage. The pattern was diagnostic rather than alarming: solar noon agreed to 2 seconds and civil twilight to 3, while only sunrise and sunset drifted, systematically, growing with latitude. That is not what a broken calculation looks like. I switched to USNO, the authoritative source, and found the convenient API is itself 95 to 231 seconds off USNO on sunrise. The reference was wrong, not the code.
-
-That still left pvlib's own sunrise and sunset helper drifting to 164 seconds at Anchorage near the equinoxes, with the error flipping sign either side. Sunrise was fine, and that asymmetry ruled out a threshold error, because a bad threshold moves sunrise and sunset together. Computing the crossings from the hour angle instead, anchored on the same SPA transit, brought the worst case to 37 seconds.
-
-Final position: solar noon from SPA, all four crossings from the hour angle, everything within 68 seconds of USNO, of which about 30 seconds is USNO's own rounding to the minute. A validation step that can only confirm what you already did is not doing anything.
-
-## How big the residual is
-
-Intra-zone spread of the annual mean offset, on standard time so that DST is not itself contributing:
-
-| Zone | Spread |
+| Zone | Widest gap inside the zone |
 | --- | --- |
 | Eastern | 87 min |
 | Central | 80 min |
 | Mountain | 66 min |
 | Pacific | 39 min |
 
-Three of the four are internally wider than the hour under debate. Pacific is not, because it is the narrowest zone in longitude, and I would rather say that than have someone find it.
+Three of the four zones are internally more spread out than the hour Congress keeps voting on. Pacific is not, because it is the narrowest zone in longitude, and I would rather say that than have someone find it.
 
-Min-to-max invites the objection that the extremes are empty countryside, so here is the stronger form: the population-weighted interquartile range is around 30 minutes in each of the big three. The middle half of the people inside one zone are spread across half the disputed hour.
+That is min-to-max, which invites the objection that the extremes are empty countryside. So here is the version that survives it: in each of the big three zones, the middle half of the population is spread across about 30 minutes. Half the disputed hour, just among the ordinary middle of one zone.
 
-Against that, here is what the two proposals do to the share of the population living more than an hour from solar noon:
+Set against that, here is what the two proposals actually do, counted in people living more than an hour from solar noon:
 
-| | Share more than 60 min out |
+| | People more than an hour out |
 | --- | --- |
-| Permanent standard time | 0.0% |
-| Current law | 34.8% |
-| Permanent DST | 68.2% |
+| Permanent standard time | almost nobody |
+| Current law | 115 million |
+| Permanent DST | **226 million** |
 
-To be fair to permanent DST, it nearly abolishes the early-sunset problem, taking the population-weighted count of days with sunset before 5pm from 44 a year to essentially zero. That is a real benefit and it is why people want it. The price is 136 days a year of sunrises after 7:30am, against 22 under permanent standard time. It is a trade, not a mistake.
-
-One modelling choice to declare, because it moves that 68.2% figure. I apply permanent DST to every county, including Arizona and Hawaii, which currently do not observe it. The actual bills exempt them. I did it the uniform way because it makes a cleaner controlled comparison: every county moves by exactly the same hour, so the map shows the geography rather than the geography plus a carve-out.
-
-Exempting them would leave about 8.5 million people, 2.6% of the population, where they are and pull the national figures down a little. It would not change the argument. Both states sit around 27 minutes west of their meridians on standard time, which is middling by national standards rather than the kind of extreme that drives the tails. The pipeline has a flag for it either way.
+To be fair to permanent DST, it nearly abolishes the early-sunset problem: days with sunset before 5pm drop from 44 a year to essentially none. That is a real benefit and it is why people want it. The price is 136 days a year of sunrises after 7:30am, against 22 under permanent standard time. A trade, not a mistake. [2]
 
 ## Solving for the map
 
-Now the part I had not seen anyone do. An integer program over the county adjacency graph: choose one integer offset per county to minimise population-weighted misalignment, plus a penalty for every pair of neighbouring counties that end up on different offsets. Solved with CP-SAT, and the penalty weight swept rather than picked, since picking it would be choosing the answer.
+Here is the part I had not seen done. Treat it as an optimisation: give every county an integer offset, chosen to put as many people as close to solar noon as possible, and add a penalty every time two neighbouring counties end up on different offsets so the result does not shatter into confetti. [3]
 
-**Surprise one: keeping the map tidy is nearly free.** Going from the unconstrained answer to a map as contiguous as today's zones costs **0.02 minutes** of population-weighted alignment. The patchwork objection to per-place time zones is simply wrong, because longitude bands are naturally contiguous. Measured as connected regions, the unconstrained solution has 15 with 10 counties stranded in enclaves; the penalised one has 10 and 3, against today's 9 and 3. The right-hand map at the top of this post is that solution. It has one more contiguous region than the current system and the same number of stranded counties, and it is the near-white one.
+**Surprise one: keeping the map tidy is nearly free.**
 
-**Surprise two, which argues against my own framing: the average American barely gains.** Today's boundaries are already close to as good as whole-hour offsets allow, at 16.95 minutes of population-weighted misalignment against a floor of 14.52. Redrawing every line in the country buys **2.4 minutes**. I had written a much more exciting sentence before I checked that number.
+The obvious objection to fitting clocks to the sun is that you would end up with a patchwork nobody could live with. You do not. Longitude bands are naturally contiguous, so a tidy map and an accurate map are almost the same map.
 
-The entire gain is in the tail. The share of the population more than 30 minutes from solar noon falls from 17.5% to 1.4%. So the case for redrawing zones is not that everyone gains. It is that about 58 million people are badly served and almost none of them need to be. That is a narrower claim than I started with and I think it is the true one.
+Concretely: forcing the solution to be as geographically tidy as today's zones costs the average American **about one second** of extra distance from solar noon. Not one minute. One second. The fitted map on the right at the top of this post has ten contiguous regions against today's nine, and strands exactly as many counties in enclaves as the current system does: three.
 
-## The floor
+**Surprise two: the average American barely gains.** This is the one that argues against my own framing.
 
-Even the fitted map still spans 61 minutes inside its Eastern band. That is not a failure of the optimiser. Whole-hour offsets can only ever place you within ±30 minutes of solar noon, so a 60-minute spread is the hard floor of the entire system.
+Today's boundaries turn out to be close to as good as whole-hour offsets allow. Redrawing every line in the country moves the typical person about **2.4 minutes** closer to the sun. I had written a much more exciting sentence before I checked that number.
 
-Which is the tidiest way I can put the whole thing. The hour being debated is exactly the granularity of the system doing the debating. Both sides are arguing about whether to add or subtract one unit of a quantity whose irreducible internal variation is already one unit.
+The gain is real, but it is concentrated. The number of people living more than half an hour from solar noon falls from **58 million to under 5 million**. So the case for redrawing zones was never that everyone gains. It is that a small minority is badly served and almost none of them need to be. That is a narrower claim than I started with, and I think it is the true one.
+
+## The hour is the wrong unit
+
+Even the fitted map still spans 61 minutes inside its Eastern band. That is not the optimiser failing. Whole-hour offsets can only ever get you within half an hour of solar noon in either direction, so a 60-minute spread is the hard floor of the entire system.
+
+Which is the tidiest way I can put the whole thing. The hour being debated is exactly the resolution of the thing doing the debating. Both sides are arguing about adding or subtracting one unit of a quantity whose irreducible internal variation is already one unit.
 
 ## What this is not
 
-Solar alignment is not the only thing time zones are for. Sharing an offset with the city you trade with is worth something real and none of this measures it. The optimisation is a measuring instrument for how much misalignment is structural rather than chosen, not a proposal; I am not campaigning for Indianapolis to join Central. And only the low-penalty solutions are proved optimal, so the shape of the trade-off curve is trustworthy while any one particular map is not.
+Solar alignment is not the only job a time zone does. Sharing an offset with the city you trade with is worth something real, and none of this measures it. The optimisation is a measuring instrument for how much of the misalignment is structural rather than chosen, not a proposal, and I am not campaigning for Indianapolis to join Central.
 
-The number I keep coming back to is Indianapolis. On 31 October 2026, the last full day of daylight saving, the sun there rises at 8:12am. Nothing currently on the table changes that by more than an hour in either direction, and one of the two options makes it worse.
+The number I keep returning to is that Indianapolis sunrise. On 31 October, the last full day of daylight saving this year, the sun there comes up at 8:12am. Nothing currently on the table moves that by more than an hour in either direction, and one of the two options makes it worse.
 
-Code and data are on GitHub, including the notes file where I pinned down the sign conventions before writing any of it, which is the only reason the numbers above agree with each other.
+---
+
+## Notes
+
+**[1] How it was built.** Census TIGER county boundaries, with the sun computed at each county's Census *centre of population* rather than its geometric centroid. That distinction matters more than it sounds: a centroid for a large western county can sit tens of kilometres of longitude from where anyone actually lives, and since the metric is longitude-driven that would bias the result directly. Time zones come from the IANA database looked up at that point, so Arizona, the Navajo Nation and the two dozen counties that straddle a boundary all resolve from geometry rather than from my assumptions. Solar positions are NREL's Solar Position Algorithm via pvlib, over 1.1 million county-days, stored as UTC instants and converted to local clock time only at the end so that all four scenarios share one astronomical layer. Sign convention: clock noon minus true solar noon, so positive means the sun runs early. [Code and data.](https://github.com/tyler-martin-12/us-time-policy)
+
+**[2] Arizona and Hawaii.** I model permanent DST as applying everywhere, including the two states that do not currently observe it. The real bills exempt them. I did it uniformly because it makes a cleaner comparison, with every county moving by the same hour, so the map shows geography rather than geography plus a carve-out. Exempting them leaves 8.5 million people, 2.6% of the population, where they are and pulls the national figures down slightly. It does not change the argument: both states sit around 27 minutes west of their meridians, middling by national standards rather than extreme.
+
+**[3] The optimiser, and how much to trust it.** An integer program over the county adjacency graph, solved with CP-SAT, minimising population-weighted distance from solar noon plus a penalty per mismatched county boundary. The penalty weight is swept rather than picked, since picking it would amount to choosing the answer. Only the low-penalty solutions are proved optimal; above that the solver returns good-but-unproven answers with gaps of 2 to 37 percent. So the shape of the trade-off is trustworthy and any one specific map is not.
+
+**[4] The validation caught a problem, and it was not where I expected.** I checked the solar calculations against published sunrise and sunset times for five sites spanning the failure modes. My first reference source failed by up to five minutes at Anchorage. But the pattern was diagnostic rather than alarming: solar noon agreed to within 2 seconds and civil twilight to 3, while only sunrise and sunset drifted, systematically, growing with latitude. That is not what a broken calculation looks like. I switched to USNO, the authoritative source, and found the convenient API was itself 95 to 231 seconds off on sunrise. The reference was wrong, not the code. That still left pvlib's own sunrise helper drifting to 164 seconds at Anchorage near the equinoxes, with the sign flipping either side of them. Sunrise was fine, and that asymmetry ruled out a threshold error, since a bad threshold moves sunrise and sunset together. Computing the crossings from the hour angle instead brought the worst case to 37 seconds. Everything now sits within 68 seconds of USNO, of which about 30 is USNO's own rounding to the minute.
 
 ---
 
 ## Notes for Tyler, delete before publishing
 
-- **~1,900 words.** Longer than the last draft because of the two new sections
-  ("this part is not new" and "why misalignment is worth measuring"). Those are
-  the two that protect the post, so I would cut elsewhere if you want it shorter:
-  the validation section could lose its middle paragraph.
-- **Title and slug changed** to lead on the optimisation rather than the
-  misalignment, matching the reframe. Old slug was `the-wrong-hour`.
+- **~1,530 words in the body**, down from 2,220, with roughly 700 more in the
+  four end notes. The path-not-conclusion material (validation story, build
+  detail, solver caveats) is all in notes now.
+- **Numbers made concrete:** 0.02 population-weighted minutes is now "about one
+  second", 17.5% to 1.4% is "58 million to under 5 million", and the 34.8% and
+  68.2% shares are now 115 million and 226 million people. Verified against
+  `metrics.csv`.
+- **Sign convention** is now taught through Indianapolis (1:45pm solar noon in
+  June, 12:54pm in January) against Chicago (12:00 exactly in January), rather
+  than stated as a rule. Both figures come straight from the solar layer.
 - **Figures, in order.** Copy into `public/images/blog/redrawing-americas-time-zones/`.
   1. Hero: `fig_c_before_after_offset_annual_mean.png`, renamed to
      `fig_c_before_after.png` to match frontmatter.
-  2. `fig_a_zone_spread.png` in "How big the residual is".
-  3. `signed_solar_offset_four_panel_offset_annual_mean.png` in the same section,
-     after the proposals table. The only place permanent DST is shown rather than
-     tabulated, and panel 3 going solid dark blue earns its place.
-- **Arizona/Hawaii now addressed** in the proposals section, with the flag and
-  the 2.6% figure stated. `EXEMPT_CURRENT_NON_OBSERVERS` is still `False` in
-  `30_metrics.py`; flip it and re-run if you would rather the headline numbers
-  match the actual bills.
-- **Deliberately not claimed:** that this is novel. Two sections now credit prior
-  work explicitly. That costs a little swagger and buys a lot of defensibility.
+  2. `fig_a_zone_spread.png` in "How far off is everyone".
+  3. `signed_solar_offset_four_panel_offset_annual_mean.png` after the proposals
+     table, the only place permanent DST is shown rather than tabulated.
+- If it still runs long, "The hour is the wrong unit" could fold into the
+  closing section, though it is the best line in the piece.
