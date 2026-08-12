@@ -1,9 +1,9 @@
-# LinkedIn post — ready to paste
+# LinkedIn post, ready to paste
 
 **Images:** two, as a carousel.
 
-1. `fig_c_before_after.png` — today vs a fitted map. Blue to white reads instantly and matches the opening line.
-2. `fig_a_zone_spread.png` — every county against the 60-minute reference bar, for anyone who swipes.
+1. `fig_c_before_after.png`: today vs a fitted map. Blue to white reads instantly and matches the opening line.
+2. `fig_a_zone_spread.png`: every county against the 60-minute reference bar, for anyone who swipes.
 
 Both are in the blog repo at `public/images/blog/redrawing-americas-time-zones/`.
 
@@ -21,13 +21,13 @@ Setup: the daylight saving debate is about applying one hour, uniformly, to the 
 
 Washington County, Maine and Ontonagon County, Michigan share a time zone and sit 87 minutes apart. Eastern spans 87 minutes end to end, Central 80, Mountain 66. Three of the four zones are internally wider than the hour being voted on.
 
-So I set it up as an optimisation over all 3,143 counties: give each one an offset that puts as many people as close to solar noon as possible, with a penalty every time two neighbouring counties disagree.
+So I set it up as an optimisation over all 3,143 counties: give each one an offset that puts as many people as close to solar noon as possible, while using no more mismatched borders between neighbouring counties than today's map already does.
 
-Surprise one: keeping the map tidy is nearly free. Forcing the answer to be as geographically neat as today's zones costs the average American about one second of extra distance from the sun. The patchwork objection to per-place time zones is just wrong, because longitude bands are naturally contiguous.
+Surprise one: keeping the map tidy is nearly free. Today's zones disagree across 246 of the 8,933 borders between neighbouring counties. The fitted map uses 241. It is not a compromise with tidiness, it draws fewer lines than the system we have, and the alignment it gives up for that is about half a second per person. The patchwork objection to per-place time zones is just wrong, because longitude bands are naturally contiguous.
 
-Surprise two, which argues against my own thesis: today's boundaries are already close to as good as whole-hour offsets allow. Redrawing every line in the country moves the typical person 2.4 minutes closer to the sun. The entire gain sits in the tail, where the badly-served population drops from 58 million to under 5 million.
+Surprise two, which argues against my own thesis: today's boundaries are already close to as good as whole-hour offsets allow. Redrawing every line in the country moves the average American 2.4 minutes closer to the sun. The entire gain sits in the tail, where the badly-served population drops from 58 million to 2 million.
 
-None of the underlying observation is new. Chronobiologists have made this case for years. What I had not seen was anyone actually solve for the map.
+None of the underlying observation is new. Chronobiologists have made this case for years, and a 2022 project already picked the best offset for each US state. What I had not found was the same question asked county by county with the cost of a messy map priced in.
 
 Write-up and code in the comments.
 
@@ -41,7 +41,7 @@ Code and data: https://github.com/tyler-martin-12/us-time-policy
 
 Prior work worth reading, since the core observation is not mine: Roenneberg et al. (2019) in Frontiers in Physiology on artificial time zones, and Giuntella & Mazzonna (2019) in the Journal of Health Economics, who use US time zone borders to show an extra hour of evening light costs about 19 minutes of sleep a night. Stefano Maggiolo mapped clock-versus-sun offset worldwide back in 2014.
 
-Method: solar positions from NREL's SPA via pvlib over 1.1 million county-days, validated against USNO to within 68 seconds. County points are Census centres of population rather than geometric centroids, which matters because the metric is longitude-driven and a centroid can sit far from where anyone lives. Zones resolved from the IANA database so Arizona falls out correctly. The optimiser is CP-SAT over the county adjacency graph, with the contiguity penalty swept rather than picked.
+Method: solar positions from NREL's SPA via pvlib over 1.1 million county-days, validated against USNO to within 68 seconds. County points are Census centres of population rather than geometric centroids, which matters because the metric is longitude-driven and a centroid can sit far from where anyone lives. Zones resolved from geometry, using OpenStreetMap's boundaries with IANA names, so they reflect the clocks people keep rather than the legal lines in 49 CFR 71; the two differ in two Alabama counties and the check is in the repo. The optimiser is CP-SAT over the county adjacency graph, constrained to use no more mismatched county borders than today's map already does. The chosen map is committed with its hash and a script that re-derives every published number from it without a solver.
 
 ---
 

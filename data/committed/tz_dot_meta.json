@@ -1,0 +1,15 @@
+{
+  "purpose": "cross-check only; the pipeline uses observed practice",
+  "published_layer": "OpenStreetMap timezone-boundary-builder via timezonefinder, queried at each county's centre of population",
+  "comparison_layer": "USDOT/BTS National Transportation Atlas Database, Time Zones layer, digitised from 49 CFR Part 71 by USDOT Office of General Counsel.",
+  "comparison_url": "https://services.arcgis.com/xOi1kZaI0eWDREZv/ArcGIS/rest/services/NTAD_Time_Zones/FeatureServer/0/query?where=1%3D1&outFields=zone,utc&returnGeometry=true&outSR=4326&f=geojson",
+  "n_counties_conflicting": 2,
+  "population_conflicting": 93955,
+  "n_centres_not_covered_by_dot": 1,
+  "counties_not_covered": [
+    "02016"
+  ],
+  "pw_mean_abs_offset_min_observed": 16.9521,
+  "pw_mean_abs_offset_min_legal": 16.9461,
+  "difference_seconds": -0.36
+}

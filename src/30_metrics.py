@@ -13,8 +13,17 @@ Regimes computed here:
 That last one is *not* the optimised regime. It is the unconstrained reference
 NOTES.md §9 asks for, and it is a rounding calculation rather than an
 optimisation: no adjacency graph, no solver, no penalty weight. It exists so the
-four-panel map has a fourth panel and so stage 2's constrained solution has
-something to be compared against. The real `optimized` regime is still stage 2.
+four-panel map has a fourth panel and so the constrained solution from stage 5
+has something to be compared against. `optimized` is added on top whenever
+stage 5 has written its assignment.
+
+The two are worth keeping distinct in your head, because this module and the
+optimiser measure misalignment differently: here it is integrated over real
+solar position across all 365 days, there it is the proxy `4*lon`. **Anything
+public should be quoted from here**, and `verify_solution.py` asserts the two
+agree to within a quarter second. They used to disagree about the unconstrained
+baseline itself, since the optimiser's lambda=0 returned a tied alternative to
+round(lon/15); that is fixed at source (NOTES.md §9).
 
 Outputs:
     data/out/metrics.csv          county x regime

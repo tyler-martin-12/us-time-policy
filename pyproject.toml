@@ -14,10 +14,18 @@ dependencies = [
     # Geometry. geopandas reads the TIGER shapefile straight out of its zip.
     "geopandas>=1.0",
     "shapely>=2.0",
+    # Connected components over the county adjacency graph, for the region and
+    # enclave counts. Arrives transitively anyway; named because
+    # assignment_stats.py imports it directly.
+    "scipy>=1.11",
     # Solar position: NREL SPA, vectorised.
     "pvlib>=0.11",
-    # IANA zone from lat/lon. Resolves Arizona, the Navajo Nation and
-    # zone-straddling counties from geometry, so no hand-kept exception list.
+    # IANA zone *name* from lat/lon. The polygons are OpenStreetMap's
+    # timezone-boundary-builder, not the legal boundaries in 49 CFR 71, so they
+    # encode observed practice. That is the right input for a metric about what
+    # clock people read, and it differs from the law in two Alabama counties.
+    # See NOTES.md §6a and src/26_validate_tz.py. Resolves Arizona, the Navajo
+    # Nation and zone-straddling counties from geometry, so no exception list.
     "timezonefinder>=6.5",
     # Explicit tzdata so zoneinfo does not depend on the host having a system
     # tz database, and so the DST rules used are versioned with the project.

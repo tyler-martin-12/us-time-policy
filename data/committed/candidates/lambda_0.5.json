@@ -1,0 +1,22 @@
+{
+  "form": "penalty",
+  "budget": null,
+  "lambda_millions": 0.5,
+  "status": "FEASIBLE",
+  "wall_seconds": 259.0,
+  "deterministic_time": 12.6,
+  "workers": 8,
+  "seed": 0,
+  "wall_limit_hit": false,
+  "gap_pct": 1.4176,
+  "pw_mean_abs_offset_min": 14.530497914403382,
+  "max_abs_offset_min": 72.592,
+  "distinct_offsets": 7,
+  "mismatched_boundaries": 232,
+  "total_boundaries": 8933,
+  "pct_boundaries_mismatched": 2.6,
+  "n_regions": 7,
+  "n_enclave_counties": 2,
+  "n_islands": 3,
+  "sha256": "abfaab8460cbc250f4dbb71b6c6a7ad1b0b688afb7e861da899840d8264816f5"
+}

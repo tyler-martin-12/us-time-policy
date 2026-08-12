@@ -49,7 +49,10 @@ REGIME_TITLES = {
     "cta": "1. Current law (switching)",
     "perm_st": "2. Permanent standard time",
     "perm_dst": "3. Permanent DST",
-    "optimized": "4. Optimised per-county offsets",
+    # Named for what the constraint actually is. "Optimised" invites the reading
+    # that this is the best possible map, which is not what is claimed: it is the
+    # best one found that uses no more mismatched county borders than today's.
+    "optimized": "4. Fitted, within today's border count",
     "ideal_unconstrained": "Per-county ideal (unconstrained)",
 }
 PANEL_ORDER = ["cta", "perm_st", "perm_dst", "optimized"]
@@ -277,7 +280,7 @@ def main() -> int:
         axs[0].text(0.01, 0.965, "current law, with the seasonal switch",
                     transform=axs[0].transAxes, ha="left", va="top",
                     fontsize=11.5, color="#6b6157")
-        axs[1].text(0.01, 0.965, "one fixed offset per county, contiguity-penalised",
+        axs[1].text(0.01, 0.965, "one fixed offset per county, no more zone borders than today",
                     transform=axs[1].transAxes, ha="left", va="top",
                     fontsize=11.5, color="#6b6157")
 

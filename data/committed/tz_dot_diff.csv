@@ -1,0 +1,3 @@
+GEOID,county,state,tz_name,observed_std_offset_h,dot_zone,dot_std_offset_h,pop_weight
+01017,Chambers,Alabama,America/New_York,-5.0,Central,-6,34772
+01113,Russell,Alabama,America/New_York,-5.0,Central,-6,59183

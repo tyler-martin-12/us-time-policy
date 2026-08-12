@@ -1,0 +1,4 @@
+assignment,pw_mean_abs_offset_min,distinct_offsets,mismatched_boundaries,pct_boundaries_mismatched,n_regions,n_mainland_offsets,excess_regions,n_enclave_counties,n_islands,sha256
+"today (zone map, all three uniform regimes)",16.952075812012392,6,246,2.75,6,6,0,0,3,429191eb8facad35f84a26e5986698a8c06268bfce3b6353fd02c4bb9fe6d132
+"unconstrained per-county optimum, round(lon/15)",14.516876186667607,8,260,2.91,12,8,4,7,3,51a6bbcc370d2b8c64cdac11331b3cac3750f8b67e50a91dc39d4b7798afd1b3
+"published, at most today's border count",14.526330758463768,8,241,2.7,9,8,1,2,3,51095e3853fbec81ee36c1b8c61f9541780e3c4a8f2e9904a0b526ce2d96bdaa

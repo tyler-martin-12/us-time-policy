@@ -1,0 +1,7 @@
+budget,deterministic_time,distinct_offsets,excess_regions,form,gap_pct,lambda_millions,max_abs_offset_min,mismatched_boundaries,n_enclave_counties,n_islands,n_mainland_offsets,n_regions,pct_boundaries_mismatched,pw_mean_abs_offset_min,seed,sha256,status,total_boundaries,wall_limit_hit,wall_seconds,workers
+320,0.97,8,4,budget,0.0,,29.988,260,7,3,8,12,2.91,14.516876186667607,0,51a6bbcc370d2b8c64cdac11331b3cac3750f8b67e50a91dc39d4b7798afd1b3,OPTIMAL,8933,False,5.0,8
+246,9.91,7,3,budget,0.0078,,31.212,246,6,3,7,10,2.75,14.518001825718246,0,bafdab9e0fc3fef17962edaa5d895c2b863cb066fb8cad9f563fd985b47fa354,FEASIBLE,8933,False,219.0,8
+209,8.23,7,22,budget,70.9583,,137.312,147,23,3,6,28,1.65,49.98625543688839,0,d784a3ddd455a6ae78aca1495986231f3839fac7f39deff22e001c4714d3ffef,FEASIBLE,8933,False,171.7,8
+172,4.68,6,26,budget,69.7246,,137.312,172,36,3,5,31,1.93,47.94943776440716,0,4926490e25ce9ae37ffc60d184166fd4dc0c486615c111d85236578ccb34aee9,FEASIBLE,8933,False,21.6,8
+135,4.46,7,18,budget,70.4207,,137.312,135,26,3,7,25,1.51,49.07778725270187,0,875d15f1aa07b0626c95e74c4ed35a0e99480a13bd678699496766e99bd1a2e0,FEASIBLE,8933,False,21.7,8
+98,8.33,6,20,budget,70.4434,,137.312,98,22,3,5,25,1.1,49.11544635426438,0,cefc463e8b9cb23d69226a9222e5a244790a6a58f64f423e4cb90cb395fec684,FEASIBLE,8933,False,139.8,8

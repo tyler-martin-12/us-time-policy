@@ -113,7 +113,7 @@ All four are evaluated over the same 365 county-days.
 | 1 | `cta` | **Current law.** Offset comes from `zoneinfo` applied to the county's IANA zone at each instant. DST transition dates are *never hardcoded* — they come from the tzdb, which is also what makes Arizona and the Navajo Nation fall out correctly. |
 | 2 | `perm_dst` | Standard offset **+1 hour**, all year. |
 | 3 | `perm_st` | Standard offset, all year. Identical to `cta` for counties that already never observe DST. |
-| 4 | `optimized` | Per-county **integer-hour** offset chosen by optimisation, contiguity-penalised. Stage 2 — see §9. |
+| 4 | `optimized` | Per-county **integer-hour** offset chosen by optimisation, constrained to use no more mismatched county borders than today's map. See §9. |
 
 **Standard offset** is defined as the county zone's UTC offset at **12:00 local
 on Jan 15, 2026**, a date on which no US zone is in DST. For Arizona and Hawaii
@@ -170,7 +170,11 @@ rather the headline maps match the real bills instead.
 - **Time zone per county:** `timezonefinder` queried at the center of population,
   giving an IANA zone name. Deliberately no hand-maintained exception list;
   Arizona, the Navajo Nation and zone-straddling counties all resolve from
-  geometry.
+  geometry. Note the provenance carefully: the *names* are IANA, but the
+  *polygons* are OpenStreetMap's timezone-boundary-builder, which encodes
+  observed practice rather than the legal boundaries in 49 CFR Part 71. That is
+  the intended input and it is not the same thing as "from the IANA database".
+  See §6a.
 
 ### Scope
 
@@ -190,8 +194,16 @@ silently dropped.
 Roughly 20 counties are split across two time zones. Resolution:
 
 **A county gets exactly one zone, taken from its center of population.** Metrics
-for a split county therefore describe *the zone the majority of its people live
-in*, not the whole county's area.
+for a split county therefore describe *the zone at the population-weighted mean
+location of its residents*, not the whole county's area.
+
+That is weaker than it first looks and the earlier wording here overstated it.
+The center of population falling in zone A does **not** establish that a
+majority of residents live in zone A: a mean is not a median, and a county with
+two clusters can have its mean land in the emptier one. Since sub-county
+population by time zone is not available in the source data, the honest claim
+is that this is the single best available point estimate for the county, not
+that it represents most of its people.
 
 Detection, so this is reported rather than assumed: sample `timezonefinder` over
 a grid of points inside each county polygon plus its boundary vertices, and flag
@@ -206,10 +218,60 @@ any county returning more than one distinct zone. Output
 | `zones_detected` | All distinct zones found in the county |
 | `n_sample_points`, `n_points_per_zone` | Crude area indication of the split |
 
-No attempt is made to apportion population within a county between zones —
-sub-county population by time zone is not available in the source data. The
+No attempt is made to apportion population within a county between zones. The
 count of affected counties and their combined population is printed in the run
 summary so the size of the caveat is visible.
+
+---
+
+## 6a. Observed practice vs the law
+
+Raised in review, checked, and resolved in favour of keeping what we have.
+
+`timezonefinder` returns IANA zone names, but its polygons are OpenStreetMap's
+timezone-boundary-builder. Those are drawn to match **what clocks people
+actually keep**. The legal boundaries are a different object: 49 CFR Part 71,
+digitised by USDOT's Office of General Counsel and published in the National
+Transportation Atlas Database.
+
+`src/26_validate_tz.py` compares the two at every county's center of population
+and commits the result. It is not part of the pipeline, because the project
+deliberately does not use the legal layer and there is no reason to make every
+rebuild download it.
+
+The disagreement, in full:
+
+| County | Ours (observed) | DOT (legal) | Population |
+| --- | --- | --- | --- |
+| Chambers, AL | Eastern | Central | 34,772 |
+| Russell, AL | Eastern | Central | 59,183 |
+
+Plus one county, Aleutians West, whose center of population falls inside no DOT
+polygon at all. That is a coastline digitisation artefact in their layer, not a
+finding about ours.
+
+**Observed practice is the correct input for this metric**, and the reasoning is
+not a preference. The whole quantity being measured is how far a person's clock
+sits from their sun, so the clock that matters is the one they read. Phenix City
+in Russell County is legally Central and runs on Eastern, along with a radius of
+surrounding towns including Smiths Station, because it belongs to the Columbus,
+Georgia economy. Putting those 59,183 people on Central would model a clock
+nobody there uses.
+
+**It does not cut cleanly, and that is worth stating.** In Chambers County only
+Lanett and Valley, on the Georgia edge, keep Eastern, so assigning the whole
+county to Eastern is arguably worse than the legal answer. Neither layer is
+right for every county. This is a county-resolution model meeting a
+sub-county-resolution reality, the same limitation as §6.
+
+**It does not matter numerically.** 93,955 people, 0.028% of the population.
+Under today's map at standard time the population-weighted mean misalignment is
+16.9521 min on observed practice and 16.9461 min on the legal layer, a
+difference of 0.36 seconds.
+
+So: report it, do not switch. What *was* wrong was the description. Saying zones
+"come from the IANA database" is loose enough to be a fair catch, and it has
+been corrected everywhere it appeared.
 
 ---
 
@@ -312,9 +374,90 @@ the argument, so they get their own table:
 
 ---
 
-## 9. Optimisation (stage 2, not started)
+## 9. Optimisation
 
-Do not begin until stages 1–5 are done and reviewed.
+**Revised after review.** The formulation below is what ships; the original
+penalty-only spec, kept beneath it, is now the search heuristic rather than the
+published result. Three things were wrong with it and all three are fixed in
+`src/50_optimize.py`.
+
+### 9.1 What is published: the border budget
+
+```
+minimise   Σ_i pop_i · |offset_i − ideal_i|
+subject to Σ_(i,j) ∈ E  [offset_i ≠ offset_j]  ≤  B
+```
+
+with `B` set to the number of mismatched borders in **today's** map, computed at
+run time rather than written down. Today's map uses 246 of 8,933.
+
+This replaced the penalty form as the published statement for one reason: it
+makes the headline claim prove itself. Any feasible solution *is* the witness.
+It exhibits a whole-hour map no more fragmented than today's, at a cost you can
+measure. The solver's optimality gap bounds how much better a tidy map could be
+and has no bearing on whether this one exists, so an unproven solution costs the
+argument nothing. Under the penalty form the same claim needed a lambda, and a
+lambda needs defending.
+
+**Say "borders", not "tidy".** The constraint is on mismatched county borders,
+which is the measure the proof is about. Contiguous regions and enclave counties
+are reported alongside it and are *not* constrained, because connectivity
+constraints in CP-SAT are a different and much harder problem. Do not let a
+qualitative word carry a mathematical claim: the provable statement is about
+border count, everything else is description.
+
+### 9.2 Ties, and why the old numbers were not reproducible
+
+The first implementation rounded misalignment to whole minutes and population to
+thousands. Misalignment rounding left **70 counties exactly tied** between two
+offsets, and 186 within a minute of the boundary. The objective value was unique
+and proved optimal; **the assignment achieving it was not**. So every
+descriptive statistic of the winning map, its border count, its distinct offsets,
+its region count, was an arbitrary pick among optima. The §13 sweep table below
+recorded 252 borders for the unconstrained optimum where `round(lon/15)` gives
+260, and an outside reviewer re-running the repo naturally got the 260. The
+region and enclave counts that reached the blog draft came from the same place.
+
+Misalignment is now carried in **thousandths of a minute** with **unrounded
+population**, which leaves zero exact ties, and `λ = 0` is asserted to return
+`round(lon/15)` *exactly* rather than merely "no county above its own minimum".
+Note the tie count by scale, in case a coarser one is ever wanted for speed:
+
+| Resolution | Exact ties |
+| --- | --- |
+| 1 minute | 70 |
+| 0.1 minute | 6 |
+| 0.01 minute | 0 |
+| 0.001 minute | 0 |
+
+The integer scale affects only *which* assignment the search picks. Every
+published figure is scored afterwards at full float precision from the
+assignment itself, so the quantum never enters a quoted number.
+
+### 9.3 Reproducibility is on the artefact, not the search
+
+Measured head to head at identical scaling, single-worker CP-SAT could not
+improve on its own warm start where eight workers reached 221 borders. Buying
+bit-reproducibility at that price would be a bad trade, and an unnecessary one.
+
+So the search runs wide, and the guarantee lives on the output: the assignment
+is committed to `data/committed/optimized_offsets.csv` with its SHA-256, and
+`src/verify_solution.py` recomputes every published statistic from that file
+with no solver involved. That check survives an OR-Tools upgrade, a different
+machine and a different worker count, none of which a reproducible search would.
+Deterministic time replaces wall-clock as the limit anyway, with a wall-clock
+safety net that flags itself in the sweep output if it ever binds.
+
+### 9.4 How the published map is chosen
+
+Every solve, penalty or budget, contributes a candidate. The published map is
+the one with the **lowest misalignment among all candidates whose border count
+is within the budget**. Which form or which lambda produced it is an
+implementation detail of the search, recorded in `optimize_meta.json` for
+honesty but not a choice anyone has to defend. No arbitrary constant survives
+into the result.
+
+### 9.5 The original penalty spec, retained as the search heuristic
 
 Integer program over the county adjacency graph:
 
@@ -447,10 +590,14 @@ disputed hour.
 
 | Regime | Share | Counties |
 | --- | --- | --- |
-| Permanent standard time | **0.0%** | 13 (all Alaska) |
+| Permanent standard time | **0.04%** | 13 (all Alaska) |
 | Current law | **34.8%** | 1,413 |
 | Permanent DST | **68.2%** | 2,480 |
 | Per-county ideal | 0.0% | 0 |
+
+The permanent standard time row is 148,976 people, every one of them in Alaska.
+It was previously written as 0.0% and described in the draft as "almost nobody",
+which rounds a real and nameable population to nothing. Quote the count.
 
 ### Population-weighted national metrics
 
@@ -477,56 +624,71 @@ and pays for it with 136 days a year of post-07:30 sunrises.
 - Solar layer nulls are exactly the two Arctic county cases: North Slope (70.5°N,
   133 days) and Northwest Arctic (66.9°N, 37 days).
 
-### Stage 5: the optimisation, and a surprise
+### Stage 5: the optimisation
 
-λ sweep, 0 to 20M person-minutes per mismatched county boundary:
+**These numbers replace an earlier set that was not reproducible.** See §9.2 for
+why. Everything below is regenerated by `50_optimize.py` and `55_regions.py`,
+and re-derivable from the committed assignment by `verify_solution.py` with no
+solver involved.
 
-| λ (M) | PW mean abs offset | Max | Distinct offsets | Mismatched boundaries | Solver gap |
-| --- | --- | --- | --- | --- | --- |
-| 0 | 14.54 | 30 | 7 | 252 / 8,933 (2.8%) | 0.00% (optimal) |
-| 0.1 | 14.54 | 41 | 7 | 218 (2.4%) | 0.00% |
-| 1.0 | **14.56** | 73 | 7 | **201 (2.3%)** | 2.33% |
-| 5.0 | 14.57 | 73 | 6 | 204 (2.3%) | 16.3% |
-| 20.0 | 15.56 | 73 | 6 | 158 (1.8%) | 37.1% |
+The three reference maps, all measured the same way, islands excluded from the
+region and enclave counts:
 
-**The trade-off curve is almost flat, which was not expected.** Rounding
-longitude to the nearest 15° already produces large contiguous bands, so
-contiguity is nearly free: going from the unconstrained optimum to the
-contiguity-penalised one costs **0.02 minutes** of population-weighted
-alignment.
+| Assignment | PW mean abs | Borders | Offsets | Regions | Excess | Enclaves |
+| --- | --- | --- | --- | --- | --- | --- |
+| Today, standard time | 16.952 | 246 | 6 | 6 | **0** | **0** |
+| Unconstrained, round(lon/15) | 14.517 | 260 | 8 | 12 | 4 | 7 |
+| **Published** | **14.526** | **241** | 8 | 9 | 1 | 2 |
 
-Boundary count is the wrong lens for "is this a usable map", because the
-unconstrained solution already scores well on it. **Connected regions** is the
-better measure:
+**Excess** is regions minus mainland offsets: the pieces beyond one connected
+band per offset. It is the fragmentation measure worth using, because raw region
+count punishes a map for using more offsets, which is the thing it is supposed
+to be doing. Today's map is perfectly banded and scores 0.
 
-| Assignment | Contiguous regions | Counties in enclaves |
-| --- | --- | --- |
-| Today's zones | 9 | 3 |
-| Unconstrained ideal | 15 | 10 |
-| Optimised, λ = 1M | **10** | **3** |
+**The finding, stated on the count rather than the clock.** The published map
+uses **241** mismatched county borders against today's **246**. It is not a
+compromise with tidiness, it draws fewer lines than the system we have. The
+alignment given up is 14.526 − 14.517 = **0.0094 min = 0.56 seconds** per
+person, measured in the real-solar metrics system rather than the optimiser's
+proxy (the two agree to 0.01 s).
 
-So the optimiser buys back essentially all of today's geographic tidiness for
-0.02 min of alignment. That is the actual finding of stage 5.
+**Border count alone is not enough, and finding that out was the surprise.**
+Minimising misalignment subject only to ≤ 246 borders solves to a 0.008% gap at
+14.518, essentially free. But that map has excess 3 and strands 6 counties: the
+budget is satisfied by scattering fragments rather than by moving bands. Hence
+the two-stage selection rule in §9.4, which sorts on excess first.
 
-**Honesty about the solver:** only λ = 0 and λ = 0.1 are proved optimal. From
-λ = 1 upward CP-SAT returns feasible solutions with gaps of 2% to 37% at a
-120s limit, so those rows are upper bounds. The selected λ = 1M solution has a
-2.3% gap. Conclusions drawn from the flatness of the curve are safe; any claim
-that a specific high-λ map is *the* optimum is not.
+**What it actually looks like.** Across the lower 48 the published map is four
+clean contiguous bands, exactly as today's is, plus Washington County, Maine on
+Atlantic time. That last one is not a quirk: its centre of population is at
+longitude −67.466, an ideal offset of −4.498, so it belongs on the Atlantic side
+by about 17 seconds, and `round(lon/15)` puts it there too. The single unit of
+excess is Alaska and Hawaii both legitimately sitting at −10 while not being
+contiguous with each other, which is geography, not fragmentation.
+
+918 counties change offset, 16.9% of the population. The largest are San Antonio
+and Austin (Central → Mountain), Detroit, Columbus, Atlanta and Indianapolis
+(Eastern → Central), and Honolulu (−10 → −11).
+
+**Honesty about the solver.** The published map carries a 20% gap on its own
+penalty objective, and that costs the argument nothing, because the claim is
+constructive: the map exists, its borders can be counted, and the unconstrained
+optimum at 14.517 is a proved lower bound on what any assignment can achieve.
+What is *not* claimed is that this is the best map within the budget.
 
 ### Illustrative counties, all three inside today's Eastern zone
 
-| County | Current law | Permanent ST | Permanent DST | Optimised |
+| County | Current law | Permanent ST | Permanent DST | Published |
 | --- | --- | --- | --- | --- |
 | Ontonagon, MI | −96 | −57 | −117 | **+3** |
 | Marion, IN (Indianapolis) | −84 | −45 | −105 | **+15** |
-| Washington, ME | −9 | **+30** | −30 | **+30** |
+| Washington, ME | −9 | **+30** | −30 | **−30** |
 
 One zone, and under permanent standard time its ends differ by 87 minutes. The
-optimiser fixes the western end and leaves Maine untouched, which is the clearest
-single statement of the argument. 910 counties move zone, 16.8% of the
-population; the largest are Detroit, Columbus, Atlanta, Indianapolis (all
-Eastern → Central) and San Antonio and Austin (Central → Mountain).
+optimiser fixes the western end; Maine's tip flips sign rather than staying put,
+because moving it to Atlantic time changes +30.1 into −29.9 and is very slightly
+better. Equal in absolute misalignment to within a fifth of a minute, so do not
+read the flip as a finding.
 
 ### Worst-aligned counties, permanent standard time
 
