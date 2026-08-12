@@ -10,10 +10,10 @@ misalignment subject to at most `B` mismatched county borders:
 
 Setting `B` to the number of mismatched borders in today's map turns the
 headline into a claim that proves itself. Any feasible solution *is* the
-witness: it exhibits a whole-hour map no more fragmented than today's, at a
-measured cost. The solver's optimality gap bounds how much better a tidy map
-could be; it has no bearing on whether this one exists. That is why the budget
-form replaced the penalty form as the published result.
+witness: it exhibits a whole-hour map crossing no more mismatched county
+borders than today's, at a measured cost. The solver's optimality gap bounds how
+much better a tidy map could be; it has no bearing on whether this one exists.
+That is why the budget form replaced the penalty form as the published result.
 
 **Penalty form (kept as the supporting sweep).** Minimise misalignment plus
 lambda per mismatched border. Fine for showing the shape of the trade-off,
@@ -26,10 +26,10 @@ time, which is a pure function of date and so identical across assignments, so
 the misalignment term is exact rather than approximate.
 
 Misalignment is carried in **thousandths of a minute** and population is
-**unrounded**. The earlier version rounded both, which left 186 counties within
-a minute of a half-hour boundary genuinely tied. The objective value was unique
-and proved optimal; the assignment achieving it was not. Every descriptive
-statistic of the winning map -- border count, distinct offsets, region count --
+**unrounded**. The earlier version rounded both, which left 70 counties exactly
+tied between two offsets, and 186 within a minute of the boundary. The objective
+value was unique and proved optimal; the assignment achieving it was not. Every
+descriptive statistic of that map -- border count, distinct offsets, regions --
 was therefore an arbitrary choice among optima, and two of those numbers reached
 the write-up. See NOTES.md §9.
 
@@ -41,10 +41,12 @@ could not improve on its own warm start while eight workers reached 221 borders.
 Paying that much solution quality for byte-stability would be a bad deal, and an
 unnecessary one, because the claim here is constructive. So the search runs wide
 and the *artefact* carries the guarantee: the assignment is committed with its
-SHA-256, and `verify_solution.py` recomputes every published statistic from that
-CSV with no solver involved. That check survives an OR-Tools upgrade, a
-different machine and a different worker count, none of which a reproducible
-search would.
+SHA-256, and `verify_solution.py` recomputes its border, region, enclave and
+alignment statistics from that CSV with no solver involved. That check survives
+an OR-Tools upgrade, a different machine and a different worker count, none of
+which a reproducible search would. Note its scope, though: those are the *map's*
+statistics. The population counts and daylight figures come from `30_metrics.py`
+and are not covered by it.
 
 The penalty form is used as a search heuristic and the budget form as the
 statement of the claim. The published map is then chosen by rule rather than by
@@ -117,9 +119,11 @@ SELECTED_OFFSETS = COMMITTED / "optimized_offsets.csv"
 CANDIDATES = COMMITTED / "candidates"
 
 # lambda in MILLIONS of person-minutes per mismatched adjacent pair. The high
-# end is not padding: maps that get down to today's *region* count only appear
-# above lambda = 5, and the published assignment is selected from among them, so
-# a thin sweep up there would leave the headline cost looser than it needs to be.
+# end is not padding: maps with only one excess region first appear around
+# lambda = 0.5 and the published assignment is selected from among those, so a
+# thin sweep up there would leave the headline cost looser than it needs to be.
+# Past lambda = 20 the solver starts collapsing offsets entirely, which the
+# selection filter throws out; those rows are kept to show where that begins.
 DEFAULT_LAMBDAS = [0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0]
 
 # Border budgets as a fraction of today's count, plus today's count itself.
@@ -541,18 +545,20 @@ def main() -> int:
             COMMITTED / "optimize_sweep_budget.csv", index=False
         )
 
-    # The selection rule. Two constraints, both read off today's map, and no
-    # arbitrary constant: the published assignment is the lowest-misalignment
-    # candidate that uses no more mismatched borders *and* falls into no more
-    # separate contiguous regions than today's zones do.
+    # The selection rule, in full, since this is the line that decides what gets
+    # published: among candidates using no more mismatched borders than today's
+    # map and better aligned than today's map, fewest excess regions, then
+    # lowest misalignment. No arbitrary constant anywhere in it.
     #
-    # Both are needed, and finding that out is one of the results. Constraining
-    # borders alone is nearly free, but the map it buys is not the map a reader
-    # sees: at today's border count the solve is proved optimal and costs
-    # essentially nothing, while landing in roughly twice as many disconnected
-    # pieces. Border count turns out to be a poor proxy for looking tidy, so the
-    # measure a reader would actually judge the map on is constrained too, and
-    # the cost is quoted against both.
+    # Region count is *not* constrained and the winner does not match today's;
+    # see `best_shaped` and the module docstring. What is minimised is excess
+    # regions, the pieces beyond one connected band per offset, because raw
+    # region count would penalise a map for using more offsets, which is the
+    # thing it is meant to be doing.
+    #
+    # Sorting on excess before misalignment is what stops the border budget
+    # being satisfied by scattering: the best map on misalignment alone has
+    # three extra fragments and strands six counties.
     today_regions = references["today_standard_time"]["n_regions"]
     winner = best_shaped(select)
     if winner is None:

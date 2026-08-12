@@ -442,8 +442,10 @@ bit-reproducibility at that price would be a bad trade, and an unnecessary one.
 
 So the search runs wide, and the guarantee lives on the output: the assignment
 is committed to `data/committed/optimized_offsets.csv` with its SHA-256, and
-`src/verify_solution.py` recomputes every published statistic from that file
-with no solver involved. That check survives an OR-Tools upgrade, a different
+`src/verify_solution.py` recomputes its border, region, enclave and alignment
+statistics from that file with no solver involved. Scope matters here: those are
+the *map's* statistics. The population counts, zone spreads and daylight figures
+come from `30_metrics.py` and are not covered by this check. That check survives an OR-Tools upgrade, a different
 machine and a different worker count, none of which a reproducible search would.
 Deterministic time replaces wall-clock as the limit anyway, with a wall-clock
 safety net that flags itself in the sweep output if it ever binds.
