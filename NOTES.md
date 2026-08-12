@@ -450,12 +450,43 @@ safety net that flags itself in the sweep output if it ever binds.
 
 ### 9.4 How the published map is chosen
 
-Every solve, penalty or budget, contributes a candidate. The published map is
-the one with the **lowest misalignment among all candidates whose border count
-is within the budget**. Which form or which lambda produced it is an
-implementation detail of the search, recorded in `optimize_meta.json` for
-honesty but not a choice anyone has to defend. No arbitrary constant survives
-into the result.
+Every solve, penalty or budget, contributes a candidate. The rule, stated
+exactly:
+
+> Among candidates that use **no more mismatched county borders than today's
+> map** and are **better aligned than today's map**, take the **fewest excess
+> regions**, then the **lowest misalignment**.
+
+Which form or which lambda produced the winner is an implementation detail of
+the search, recorded in `optimize_meta.json` but not a choice anyone has to
+defend. No arbitrary constant survives into the result.
+
+Three things about that rule are worth stating plainly, because earlier drafts
+of this section and of the module docstring got them wrong.
+
+**Region count is reported, never constrained.** The published map falls into 9
+contiguous regions against today's 6 and this is not a violation of anything. A
+map that uses more offsets needs more regions to hold them, so constraining the
+raw count would penalise the map for doing its job, and connectivity constraints
+in CP-SAT are a much harder problem besides.
+
+**"Excess regions" is the measure that survives that objection.** Regions minus
+mainland offsets, so the pieces beyond one connected band per offset. Today's
+map is perfectly banded at 0. The published map scores 1, and that single unit
+is Alaska and Hawaii both sitting at UTC−10 without being contiguous with each
+other, which is geography rather than fragmentation.
+
+**Both filter tests are load-bearing.** Drop the border test and there is no
+claim. Drop the "better than today" test and the rule publishes a map that
+collapses the country onto two offsets: zero borders, flawless on every
+fragmentation measure, and three times worse aligned than the status quo. That
+is not hypothetical, it is what the first version of this rule selected, and
+`verify_solution.py` caught it independently.
+
+**An earlier form of this rule sorted on misalignment alone**, which would
+select the 14.518 min border-budget candidate rather than the published 14.526
+min map. That candidate has excess 3 and strands 6 counties, which is the
+scattering failure §9.1 describes. Sorting on excess first is the fix.
 
 ### 9.5 The original penalty spec, retained as the search heuristic
 

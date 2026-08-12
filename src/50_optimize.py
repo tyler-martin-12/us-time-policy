@@ -48,18 +48,34 @@ search would.
 
 The penalty form is used as a search heuristic and the budget form as the
 statement of the claim. The published map is then chosen by rule rather than by
-picking a lambda, so no arbitrary constant survives into the result: it is the
-lowest-misalignment candidate that uses **no more mismatched borders and no more
-contiguous regions** than today's map.
+picking a lambda, so no arbitrary constant survives into the result. The rule,
+stated exactly, because an earlier version of this docstring described a
+constraint the code does not apply:
 
-Both limits are needed, and discovering that is one of the results. Constraining
-borders alone is nearly free and provably so, but it buys a map that is not
-tidy in the way a reader means: at today's border count the solve comes back
-proved optimal for a cost near zero, while breaking the country into roughly
-twice as many disconnected pieces as today's zones. Border count is what the
-solver can constrain; region count is what someone looking at the map will
-judge. So the published map is held to both, and the cost is quoted against
-both.
+    Among candidates that use no more mismatched county borders than today's
+    map AND are better aligned than today's map, take the fewest excess
+    regions, then the lowest misalignment.
+
+Note what is *not* in there. The published map is **not** held to today's region
+count, and it does not meet it: today's map falls into 6 contiguous regions and
+the published one into 9. Region count is reported, never constrained. Holding a
+map to it would be both intractable in CP-SAT and wrong, since a map using more
+offsets needs more regions to hold them, which is the very thing it is supposed
+to be doing.
+
+`excess_regions` is the honest version of that measure: regions minus the number
+of offsets used on the mainland, so the count of pieces beyond one connected
+band per offset. Today's map is perfectly banded and scores 0; the published map
+scores 1, and that single unit is Alaska and Hawaii both sitting at UTC-10
+without being contiguous with each other.
+
+Both tests in the filter are load-bearing. Constraining borders alone is nearly
+free and provably so, but buys a map with three extra fragments and six stranded
+counties: the budget gets satisfied by scattering rather than by moving bands.
+And a high penalty drives the solver toward collapsing the country onto a couple
+of offsets, which uses no borders at all, scores perfectly on every
+fragmentation measure, and is three times worse aligned than what we already
+have. Without the "better than today" test the rule published exactly that.
 
 Adjacency is **rook**: counties sharing a boundary of non-zero length. Counties
 meeting at a single point are not neighbours, and pairs whose intersection is a
@@ -580,20 +596,27 @@ def main() -> int:
     (COMMITTED / "optimize_meta.json").write_text(
         json.dumps(
             {
-                "published_form": "budget",
-                "published_objective":
+                # The claim is stated in the budget form; the assignment that
+                # witnesses it may have been found by either form. Keeping these
+                # as separate keys stops the metadata implying the published map
+                # came out of a budget solve when it did not.
+                "claim_form": "border_budget",
+                "claim_objective":
                     "minimise sum_i pop_i*|ideal_i - 60*offset_i| "
                     "s.t. sum_edges[o_i != o_j] <= B",
                 "published_budget": select,
                 "published_budget_source":
                     "mismatched borders in today's standard-time map, computed at run time",
-                "published_max_regions": today_regions,
-                "published_max_regions_source":
-                    "contiguous same-offset regions in today's map, islands excluded",
                 "published_selection_rule":
-                    "lowest population-weighted misalignment among all candidates "
-                    "found by any solve that uses no more mismatched borders and no "
-                    "more contiguous regions than today's map",
+                    "among candidates using no more mismatched borders than today's "
+                    "map and better aligned than today's map, fewest excess regions "
+                    "first, then lowest population-weighted misalignment",
+                "published_excess_regions": published["excess_regions"],
+                "published_regions": published["n_regions"],
+                # Reported for comparison only. Region count is NOT a constraint
+                # and the published map does not match today's; see the module
+                # docstring for why holding it to that would be wrong.
+                "today_regions_reported_not_constrained": today_regions,
                 "border_budget_only_best_min":
                     round(borders_only[1]["pw_mean_abs_offset_min"], 6)
                     if borders_only else None,
